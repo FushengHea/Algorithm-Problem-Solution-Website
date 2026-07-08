@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>题目管理 - 算法题解库</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- 密码验证弹窗 -->
+    <div class="auth-overlay" id="authOverlay">
+        <div class="auth-card">
+            <div class="auth-icon">🔐</div>
+            <h2>管理后台</h2>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">请输入密码以访问后台</p>
+            <input type="password" id="authPasswordInput" placeholder="输入管理密码" autofocus>
+            <div class="auth-error" id="authError"></div>
+            <button id="authSubmitBtn">🔓 验证</button>
+            <p class="auth-hint">仅限管理员访问</p>
+        </div>
+    </div>
+
+    <div class="admin-container" id="adminContainer" style="display:none;">
+        <div class="admin-header">
+            <div>
+                <h1>⚙️ 题目管理</h1>
+                <p style="color: var(--text-muted); font-size: 14px; margin-top: 4px;">
+                    添加、编辑或删除题目和题解 · 来源：XMUOJ 2026年程序设计实践例题(05李胜睿班)
+                </p>
+            </div>
+            <div style="display:flex;gap:10px;">
+                <button class="btn btn-secondary" onclick="exportData()">📥 导出数据</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">📤 导入数据</button>
+                <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importData(event)">
+                <a href="index.html" class="back-btn">← 返回首页</a>
+            </div>
+        </div>
+
+        <!-- 标签切换 -->
+        <div class="admin-tabs">
+            <button class="admin-tab active" data-tab="problems" onclick="switchAdminTab('problems')">
+                📝 题目管理
+            </button>
+            <button class="admin-tab" data-tab="collections" onclick="switchAdminTab('collections')">
+                📚 题库管理
+            </button>
+        </div>
+
+        <!-- ========== 题目管理面板 ========== -->
+        <div class="admin-tab-panel active" id="tabProblems">
+
+        <!-- 添加/编辑表单 -->
+        <div class="admin-form" id="problemForm">
+            <h2 id="formTitle">📝 添加新题目</h2>
+            <input type="hidden" id="editId">
+
+            <div class="form-group">
+                <label>题目名称 <span class="required">*</span></label>
+                <input type="text" id="titleInput" placeholder="例如：汉诺塔1">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label>算法标签 <span class="required">*</span></label>
+                    <div class="tag-selector" id="tagSelector">
+                        <!-- 动态生成标签选项 -->
+                    </div>
+                    <div class="add-tag-row">
+                        <input type="text" id="newTagInput" placeholder="输入新标签名称，如：动态规划、贪心...">
+                        <button type="button" class="btn btn-small btn-primary" onclick="addNewTag()">➕ 添加标签</button>
+                    </div>
+                    <p class="form-hint">点击标签选中/取消，在下方输入框添加自定义标签。鼠标悬停自定义标签可删除。</p>
+                </div>
+                <div class="form-group">
+                    <label>难度等级</label>
+                    <select id="difficultyInput">
+                        <option value="">未标记</option>
+                        <option value="低">🟢 低</option>
+                        <option value="中">🟡 中</option>
+                        <option value="高">🔴 高</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>题目来源</label>
+                    <input type="text" id="sourceInput" value="XMUOJ | 2026年程序设计实践例题(05李胜睿班)" placeholder="题目来源">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="form-label-row">
+                    <label>原始题目描述</label>
+                    <div class="preview-toggles">
+                        <button type="button" class="preview-toggle-btn active" data-target="originalProblemInput" data-mode="edit">✏️ 编辑</button>
+                        <button type="button" class="preview-toggle-btn" data-target="originalProblemInput" data-mode="preview">👁 预览</button>
+                    </div>
+                </div>
+                <textarea id="originalProblemInput" placeholder="粘贴原题目描述（支持Markdown格式）..." style="min-height:120px;"></textarea>
+                <div class="markdown-preview" id="originalProblemInput-preview" style="display:none;"></div>
+                <p class="form-hint">让访客看到原汁原味的题目，支持Markdown格式。点击「预览」查看渲染效果。</p>
+            </div>
+
+            <div class="form-group">
+                <div class="form-label-row">
+                    <label>C++ 题解（讲解内容） <span class="required">*</span></label>
+                    <div class="preview-toggles">
+                        <button type="button" class="preview-toggle-btn active" data-target="explanationCppInput" data-mode="edit">✏️ 编辑</button>
+                        <button type="button" class="preview-toggle-btn" data-target="explanationCppInput" data-mode="preview">👁 预览</button>
+                    </div>
+                </div>
+                <textarea id="explanationCppInput" placeholder="支持Markdown格式：## 标题, **粗体**, - 列表, `代码`..."></textarea>
+                <div class="markdown-preview" id="explanationCppInput-preview" style="display:none;"></div>
+                <p class="form-hint">支持Markdown格式：## 用于标题, **粗体**, - 列表, `行内代码`, ```代码块```, > 引用, | 表格 |</p>
+            </div>
+
+            <div class="form-group">
+                <label>C++ 完整代码 <span class="required">*</span></label>
+                <textarea id="codeCppInput" placeholder="粘贴完整的C++代码..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <div class="form-label-row">
+                    <label>Python 题解（可选）</label>
+                    <div class="preview-toggles">
+                        <button type="button" class="preview-toggle-btn active" data-target="explanationPythonInput" data-mode="edit">✏️ 编辑</button>
+                        <button type="button" class="preview-toggle-btn" data-target="explanationPythonInput" data-mode="preview">👁 预览</button>
+                    </div>
+                </div>
+                <textarea id="explanationPythonInput" placeholder="Python版本的题解（可选，后续补充）..."></textarea>
+                <div class="markdown-preview" id="explanationPythonInput-preview" style="display:none;"></div>
+            </div>
+
+            <div class="form-group">
+                <label>Python 完整代码（可选）</label>
+                <textarea id="codePythonInput" placeholder="粘贴完整的Python代码（可选，后续补充）..."></textarea>
+            </div>
+
+            <div class="form-actions">
+                <button class="btn btn-primary" onclick="saveProblem()">💾 保存题目</button>
+                <button class="btn btn-secondary" onclick="resetForm()">🔄 重置表单</button>
+                <button class="btn btn-secondary" onclick="clearAllData()" style="margin-left:auto;">🗑️ 清空所有数据</button>
+            </div>
+        </div>
+
+        <!-- 已上传题目列表 -->
+        <div class="admin-problem-list" id="adminProblemList">
+            <h2>📋 已上传题目 (<span id="adminCount">0</span>)</h2>
+            <div id="adminProblemItems">
+                <div style="text-align:center;padding:40px;color:var(--text-muted);">
+                    暂无题目，请添加第一个题目
+                </div>
+            </div>
+        </div>
+
+        </div><!-- /tabProblems -->
+
+        <!-- ========== 题库管理面板 ========== -->
+        <div class="admin-tab-panel" id="tabCollections">
+
+        <!-- 题库管理 -->
+        <div class="admin-form" id="collectionSection">
+            <h2>📚 题库管理</h2>
+            <p class="form-hint" style="margin-bottom:16px;">创建题库将题目归类，方便访客按题库浏览。例如："期中复习"、"动态规划专项"。</p>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>题库名称 <span class="required">*</span></label>
+                    <input type="text" id="collectionNameInput" placeholder="例如：期中复习">
+                </div>
+                <div class="form-group">
+                    <label>描述（可选）</label>
+                    <input type="text" id="collectionDescInput" placeholder="简短描述该题库的内容">
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-primary" onclick="createCollection()">➕ 创建题库</button>
+            </div>
+
+            <!-- 题库列表 -->
+            <div class="collection-list" id="collectionList" style="margin-top:20px;">
+                <div style="text-align:center;padding:20px;color:var(--text-muted);">暂无题库</div>
+            </div>
+        </div>
+
+        <!-- 题库题目管理弹窗 -->
+        <div class="modal-overlay" id="collectionModal">
+            <div class="modal-container" style="max-width:700px;">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="collectionModalTitle">管理题库题目</h2>
+                    <button class="modal-close" onclick="closeCollectionModal()">✕</button>
+                </div>
+                <div class="modal-body">
+                    <div class="search-box" style="margin-bottom:16px;width:100%;">
+                        <input type="text" id="collectionSearchInput" placeholder="搜索题目..." style="width:100%;">
+                        <span class="search-icon">🔎</span>
+                    </div>
+                    <div style="margin-bottom:12px;display:flex;gap:8px;">
+                        <button class="btn btn-small btn-primary" onclick="selectAllInModal()">全选</button>
+                        <button class="btn btn-small btn-secondary" onclick="deselectAllInModal()">取消全选</button>
+                        <span style="margin-left:auto;color:var(--text-muted);font-size:13px;">已选 <b id="modalSelectedCount">0</b> 题</span>
+                    </div>
+                    <div class="collection-problem-checklist" id="collectionProblemChecklist" style="max-height:400px;overflow-y:auto;">
+                        <!-- 动态生成 -->
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-primary" onclick="saveCollectionProblems()">💾 保存</button>
+                        <button class="btn btn-secondary" onclick="closeCollectionModal()">取消</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        </div><!-- /tabCollections -->
+
+    </div>
+
+    <script src="js/data.js"></script>
+    <script src="js/defaultProblems.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>算法题解 - 程序设计实践</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- 特摄风格顶部英雄区 -->
+    <header class="hero-header">
+        <div class="hero-bg-particles"></div>
+        <div class="hero-content">
+            <div class="hero-badge">
+                <span class="badge-icon">⚡</span>
+                <span class="badge-text">XMUOJ 2026</span>
+            </div>
+            <h1 class="hero-title">
+                <span class="title-line-1">程序设计实践</span>
+                <span class="title-line-2">算法题解库</span>
+            </h1>
+            <p class="hero-subtitle">从入门到精通，用代码点亮算法之路</p>
+            <div class="hero-decoration">
+                <span class="deco-diamond">◆</span>
+                <span class="deco-line"></span>
+                <span class="deco-diamond">◆</span>
+                <span class="deco-line"></span>
+                <span class="deco-diamond">◆</span>
+            </div>
+            <p class="hero-class-info">2026年程序设计实践例题 · 05李胜睿班</p>
+        </div>
+        <div class="hero-gradient-bar"></div>
+    </header>
+
+    <!-- 导航和筛选区 -->
+    <nav class="filter-nav">
+        <div class="nav-inner">
+            <div class="nav-title">
+                <span class="nav-icon">🔍</span>
+                <span>算法分类</span>
+            </div>
+            <div class="tag-list" id="tagList">
+                <button class="tag-btn active" data-tag="all">
+                    <span class="tag-icon">🏠</span> 全部题目
+                </button>
+            </div>
+            <div class="collection-filter" id="collectionFilter" style="display:none;">
+                <span class="nav-title" style="font-size:13px;">📚 题库：</span>
+                <div id="collectionTagList" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+            </div>
+            <div class="nav-controls">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="搜索题目...">
+                    <span class="search-icon">🔎</span>
+                </div>
+                <button class="sort-btn" id="sortBtn" onclick="toggleSortByDifficulty()" title="按难度排序">
+                    <span>📶</span> 难度排序
+                </button>
+                <button class="admin-link-btn" onclick="location.href='admin.html'" title="管理题目">
+                    <span>⚙️</span> 管理
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+        <!-- 统计信息 -->
+        <div class="stats-bar" id="statsBar">
+            <div class="stat-item">
+                <span class="stat-num" id="statTotal">0</span>
+                <span class="stat-label">题目总数</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-num" id="statTags">0</span>
+                <span class="stat-label">算法分类</span>
+            </div>
+        </div>
+
+        <!-- 题目列表 -->
+        <div class="problem-grid" id="problemGrid">
+            <!-- 动态生成 -->
+        </div>
+
+        <!-- 空状态 -->
+        <div class="empty-state" id="emptyState" style="display:none;">
+            <div class="empty-icon">📭</div>
+            <h3>暂无题目</h3>
+            <p>该分类下还没有题目，请前往管理页面上传</p>
+        </div>
+    </main>
+
+    <!-- 题解弹窗 -->
+    <div class="modal-overlay" id="solutionModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-tag" id="modalTag"></div>
+                <h2 class="modal-title" id="modalTitle"></h2>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <!-- 代码版本切换 -->
+                <div class="code-version-tabs">
+                    <button class="version-tab active" data-version="cpp" onclick="switchVersion('cpp')">
+                        <span class="version-icon">🔷</span> C++ 版本
+                    </button>
+                    <button class="version-tab" data-version="python" onclick="switchVersion('python')">
+                        <span class="version-icon">🐍</span> Python 版本
+                    </button>
+                </div>
+                <!-- 题解内容 -->
+                <div class="solution-content" id="solutionContent">
+                    <div class="solution-section" id="originalProblemSection" style="display:none;">
+                        <h3>📜 原题目</h3>
+                        <div id="originalProblemContent" class="original-problem-box"></div>
+                    </div>
+                    <div class="solution-section" id="explanationSection">
+                        <h3>📖 题目讲解</h3>
+                        <div id="explanationContent"></div>
+                    </div>
+                    <div class="solution-section">
+                        <h3 id="codeSectionTitle">💻 代码实现</h3>
+                        <div class="code-block-wrapper">
+                            <button class="copy-btn" onclick="copyCode()">📋 复制代码</button>
+                            <pre><code id="codeContent" class="language-cpp"></code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <span class="footer-icon">⚡</span>
+                <span>算法题解库</span>
+            </div>
+            <p class="footer-text">XMUOJ · 2026年程序设计实践例题(05李胜睿班)</p>
+            <p class="footer-subtitle">Powered by Passion &amp; Tokusatsu Spirit</p>
+        </div>
+    </footer>
+
+    <script src="js/data.js"></script>
+    <script src="js/defaultProblems.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
