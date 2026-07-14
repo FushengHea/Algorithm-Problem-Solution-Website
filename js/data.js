@@ -237,3 +237,82 @@ function getProblemsByCollection(collectionId) {
     const idSet = new Set(col.problemIds);
     return PROBLEMS.filter(p => idSet.has(p.id));
 }
+
+// ==================== 数学公式工具 ====================
+
+/**
+ * 从 Markdown 文本中提取数学公式（$...$ 和 $$...$$），
+ * 替换为哨兵字符串以防止 HTML 转义破坏 LaTeX 语法。
+ * 必须在代码块提取之后、HTML 转义之前调用。
+ *
+ * @param {string} text - 已提取代码块的 Markdown 文本
+ * @returns {{ text: string, mathBlocks: string[], mathInlines: string[] }}
+ */
+function extractMathFormulas(text) {
+    const mathBlocks = [];   // $$...$$ 显示公式
+    const mathInlines = [];  // $...$ 行内公式
+
+    // 0. 保护转义的美元符号：\$ → 哨兵
+    text = text.replace(/\\\$/g, '\x00ESCDOLLAR\x00');
+
+    // 1. 提取显示数学公式 $$...$$
+    text = text.replace(/\$\$([\s\S]+?)\$\$/g, (_, formula) => {
+        const idx = mathBlocks.length;
+        mathBlocks.push(formula.trim());
+        return '\x00MATHBLOCK' + idx + '\x00';
+    });
+
+    // 2. 提取行内数学公式 $...$
+    //    要求 $ 后面不能紧跟空白（避免误匹配货币/普通文本）
+    text = text.replace(/(?<!\$)\$(?!\s)([^$\n]+?)(?<!\s)\$/g, (_, formula) => {
+        const idx = mathInlines.length;
+        mathInlines.push(formula.trim());
+        return '\x00MATHINLINE' + idx + '\x00';
+    });
+
+    // 3. 恢复转义的美元符号
+    text = text.replace(/\x00ESCDOLLAR\x00/g, '$');
+
+    return { text, mathBlocks, mathInlines };
+}
+
+/**
+ * 将提取出的数学公式用 KaTeX 渲染后恢复到 HTML 中。
+ * 必须在代码块恢复之后调用（此时 HTML 已转义完成）。
+ *
+ * @param {string} html - 已处理的 HTML 字符串
+ * @param {string[]} mathBlocks - 显示公式数组
+ * @param {string[]} mathInlines - 行内公式数组
+ * @returns {string} 恢复数学公式后的 HTML
+ */
+function restoreMathFormulas(html, mathBlocks, mathInlines) {
+    // 恢复显示公式
+    html = html.replace(/\x00MATHBLOCK(\d+)\x00/g, (_, idx) => {
+        const formula = mathBlocks[parseInt(idx)];
+        if (typeof katex !== 'undefined') {
+            try {
+                return '<div class="math-block">' +
+                    katex.renderToString(formula, { displayMode: true, throwOnError: false }) +
+                    '</div>';
+            } catch (e) {
+                return '<div class="math-block math-error">$$' + escapeHtml(formula) + '$$</div>';
+            }
+        }
+        return '<div class="math-block">$$' + escapeHtml(formula) + '$$</div>';
+    });
+
+    // 恢复行内公式
+    html = html.replace(/\x00MATHINLINE(\d+)\x00/g, (_, idx) => {
+        const formula = mathInlines[parseInt(idx)];
+        if (typeof katex !== 'undefined') {
+            try {
+                return katex.renderToString(formula, { displayMode: false, throwOnError: false });
+            } catch (e) {
+                return '<span class="math-inline math-error">$' + escapeHtml(formula) + '$</span>';
+            }
+        }
+        return '<span class="math-inline">$' + escapeHtml(formula) + '$</span>';
+    });
+
+    return html;
+}

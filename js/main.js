@@ -352,65 +352,86 @@ function formatExplanation(text) {
         return `\x00CODE${idx}\x00`;
     });
 
-    // 2. 转义 HTML
+    // 2. 提取并保护数学公式 ($...$ 和 $$...$$)
+    const mathResult = extractMathFormulas(html);
+    html = mathResult.text;
+    const mathBlocks = mathResult.mathBlocks;
+    const mathInlines = mathResult.mathInlines;
+
+    // 3. 转义 HTML
     html = html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-    // 3. 分割线
+    // 4. 分割线
     html = html.replace(/^(---|\*\*\*|___)\s*$/gm, '<hr>');
 
-    // 4. 标题
+    // 5. 标题
     html = html.replace(/^#### (.+)$/gm, '<h5>$1</h5>');
     html = html.replace(/^### (.+)$/gm, '<h4>$1</h4>');
     html = html.replace(/^## (.+)$/gm, '<h3>$1</h3>');
     html = html.replace(/^# (.+)$/gm, '<h2>$1</h2>');
 
-    // 5. 引用块
+    // 6. 引用块
     html = html.replace(/^&gt; ?(.+)$/gm, '<blockquote-line>$1</blockquote-line>');
 
-    // 6. 粗体和斜体
+    // 7. 粗体和斜体
     html = html.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
     html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
     html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
 
-    // 7. 行内代码
+    // 8. 行内代码
     html = html.replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>');
 
-    // 8. 链接
+    // 9. 链接
     html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
 
-    // 9. 有序列表
+    // 10. 有序列表
     html = html.replace(/^(\d+)\. (.+)$/gm, '\x01LI\x01$2');
 
-    // 10. 无序列表
+    // 11. 无序列表
     html = html.replace(/^[-*] (.+)$/gm, '\x01LI\x01$1');
 
-    // 11. 包装列表项
+    // 12. 包装列表项
     html = html.replace(/(?:\x01LI\x01.+\n?)+/g, (match) => {
         const items = match.split('\x01LI\x01').filter(s => s.trim());
         const lis = items.map(item => `<li>${item.trim()}</li>`).join('\n');
         return `<ul>${lis}</ul>`;
     });
 
-    // 12. 合并引用块
+    // 13. 合并引用块
     html = html.replace(/(?:<blockquote-line>.*<\/blockquote-line>\n?)+/g, (match) => {
         const lines = match.replace(/<blockquote-line>/g, '').replace(/<\/blockquote-line>/g, '<br>');
         return `<blockquote><p>${lines.replace(/<br>$/, '')}</p></blockquote>`;
     });
 
-    // 13. 段落
+    // 14. 段落
     html = html.replace(/\n\n+/g, '</p><p>');
     html = '<p>' + html + '</p>';
 
-    // 14. 单换行转 <br>
+    // 15. 单换行转 <br>
     html = html.replace(/\n/g, '<br>');
 
-    // 15. 恢复代码块
+    // 16. 恢复代码块（带语法高亮）
     html = html.replace(/\x00CODE(\d+)\x00/g, (_, idx) => {
         const block = codeBlocks[parseInt(idx)];
-        return `<pre class="md-code-block"><code>${escapeHtml(block.code)}</code></pre>`;
+        let codeHtml = escapeHtml(block.code);
+        if (block.lang && typeof hljs !== 'undefined') {
+            try {
+                const result = hljs.highlight(block.code, {
+                    language: block.lang,
+                    ignoreIllegals: true
+                });
+                codeHtml = result.value;
+            } catch (e) {
+                // 高亮失败时回退到转义文本
+            }
+        }
+        return `<pre class="md-code-block"><code class="hljs language-${escapeHtml(block.lang)}">${codeHtml}</code></pre>`;
     });
 
-    // 16. 清理
+    // 17. 恢复数学公式
+    html = restoreMathFormulas(html, mathBlocks, mathInlines);
+
+    // 18. 清理
     html = html.replace(/<p>\s*<\/p>/g, '');
     html = html.replace(/<p><ul>/g, '<ul>');
     html = html.replace(/<\/ul><\/p>/g, '</ul>');

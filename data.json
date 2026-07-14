@@ -796,11 +796,424 @@
       "id": 52,
       "createdAt": "2026-07-07T11:52:56.287Z",
       "updatedAt": "2026-07-07T12:21:11.265Z"
+    },
+    {
+      "title": "净化迷雾森林（广搜）",
+      "tags": [
+        "广搜BFS",
+        "精选题库"
+      ],
+      "difficulty": "中",
+      "source": "XMUOJ | 2026年程序设计实践例题(05李胜睿班)",
+      "original_problem": "## 描述\n\n\n迷雾森林被加农的玷污了，原本圣洁无比的迷雾森林，如今被彻底玷污，空气中充满着紫色的恶臭。\n\n林克临危不惧，带上呼吸面罩，挥舞大师之剑的光芒，净化迷雾。林克所到之处，加农褪去，圣洁回归。\n\n如下图，红色代表墙壁，紫色的迷雾代表需要净化的空间，金色代表林克开始净化的起点。\n\n从某处开始，林克只能向相邻的紫色区域移动。请问，林克总共能够净化多少区域？\n\n## 输入\n\n包括多个数据集合。每个数据集合的第一行是两个整数W和H，分别表示x方向和y方向瓷砖的数量。W和H都不超过20。\n\n在接下来的H行中，每行包括W个字符。\n\n每个字符表示一个区域的状态，规则如下\n\n1）‘.’：代表紫色迷雾image.png；\n\n2）‘#’：代表红墙image.png；\n\n3）‘@’：代表林克的起始位置image.png(该字符在每个数据集合中唯一出现一次。）\n\n当在一行中读入的是两个零时，表示输入结束。\n\n\n## 输出\n\n对每个数据集合，分别输出一行，显示林克从初始位置出发能净化的迷雾数(记数时包括初始位置的迷雾)。\n\n\n## 输入样例 1 \n\n6 9 \n....#. \n.....# \n...... \n...... \n...... \n...... \n...... \n#@...# \n.#..#. \n0 0\n## 输出样例 1\n\n45",
+      "explanation_cpp": "## 题目描述\n给定一个 m×n 网格，格子为 '.'（可走）、'#'（障碍）或 '@'（起点）。从起点出发，按上下左右四个方向行走，计算从起点可到达的格子总数（包含起点）。输入有多组测试，输入终止于 \"0 0\"。\n\n## 解题思路\n这是典型的连通块计数/可达性问题，用广度优先搜索（BFS）。\n从起点 '@' 出发，进行 BFS：每次从队列取出一个点，计数 +1，然后枚举四个方向的邻居（上下左右），如果邻居在网格内且为 '.'（未访问且可通行），则标记为已访问并入队。\n标记已访问方式可以直接修改原网格（例如把已访问或障碍标为 '#'），避免额外访问数组。\n\n## 代码逻辑\n\n读入 m, n，当 m==0 且 n==0 时结束。\n读入 n 行字符串（每行长度 m）。\n找到起点 (sx, sy)。若无起点，输出 0。\nBFS：\nq.push((sx,sy)); 标记 g[sx][sy] = '#'; res = 0\nwhile q 非空:\nt = q.front(); q.pop(); res++\nfor 四个方向 (dx,dy):\nnx = t.x + dx, ny = t.y + dy\nif nx,ny 在范围内且 g[nx][ny]=='.':\ng[nx][ny] = '#'; q.push((nx,ny))\n输出 res\n\n## 复杂度:\n\n每个格子最多入队一次，邻居检查常数次，时间复杂度 O(nm)；空间复杂度 O(nm)（队列在最坏情形下可达全部格子），或若就地标记则额外空间 O(1)。",
+      "code_cpp": "#include <algorithm>\n#include <iostream>\n#include <queue>\n\nusing namespace std;\n\ntypedef pair<int, int> PII;\nconst int N=25;\n\nint n,m;\nchar g[N][N]; \n\nint bfs(int sx,int sy){\n    queue<PII> q;       //队列\n    q.push({sx,sy});    //将起点加入队列\n    int res=0;          //记录遍历的点数\n    g[sx][sy]='#';      //把遍历过的标记为#\n    \n    int dx[4]={-1,0,1,0};\n    int dy[4]={0,1,0,-1};\n\n    while(q.size()){    //队列为空的时候退出广搜\n        auto t=q.front(); //取出队首元素\n        q.pop();          //弹出对头\n        res++;            //遍历的点数加一\n        \n        //遍历四个方向\n        for(int i=0;i<4;i++){\n            int x=t.first+dx[i],y=t.second+dy[i]; //计算下一个点的坐标\n            if(x<0||x>=n||y<0||y>=m||g[x][y]!='.')\n                continue; //如果越界或者不是'.'，则跳过\n            g[x][y]='#'; //标记为已遍历\n            q.push({x,y}); //将下一个点加入队列\n        }\n    }\n    return res;\n}\n\nint main(){\n    while((cin>>m>>n) && (n||m)){\n        for(int i=0;i<n;i++) cin>>g[i];\n        int x=-1,y=-1;\n        for(int i=0;i<n;i++){\n          for(int j=0;j<m;j++)\n            if(g[i][j]=='@'){\n                x=i,y=j;\n            }\n        }\n        cout<<(x==-1?0:bfs(x,y))<<endl;\n    }\n\n    return 0;\n}",
+      "explanation_python": "",
+      "code_python": "",
+      "id": 53,
+      "createdAt": "2026-07-09T01:05:28.238Z",
+      "updatedAt": "2026-07-09T06:30:06.147Z"
+    },
+    {
+      "title": "波克布林的巡逻范围",
+      "tags": [
+        "广搜BFS"
+      ],
+      "difficulty": "中",
+      "source": "XMUOJ | 2026年程序设计实践例题(05李胜睿班)",
+      "original_problem": "## 描述\n\n\n\n有一个m行和n列的方阵区域(m＊n)，横纵坐标范围分别是0∼m−1和0∼n−1。\n\n一只红色的波克布林从坐标0,0的格子开始巡逻，每一次只能向左，右，上，下四个方向移动一格。\n\n但是不能进入行坐标和列坐标的数位之和大于k的格子。\n\n请问该红色波克布林能够达到多少个格子？\n\n假如输入：k=18, m=40, n=40\n\n则输出是：1484\n\n根据题意思：当k为18时，波克布林能够进入方格（35,37），因为3+5+3+7 = 18。 但是，它不能进入方格（35,38），因为3+5+3+8 = 19。\n\n\n## 输入\n\n输入一行，三个整数，由空格隔开，代表k m n\n\n其中：\n\n0<=k<=100\n\n0<=m<=50\n\n0<=n<=50\n\n\n## 输出\n\n一个整数，表示红色波克布林能达到的多少格子。\n\n\n## 输入样例 1 \n\n18 40 40\n## 输出样例 1\n\n1484",
+      "explanation_cpp": "## 题意：\n本题要求统计从 (0, 0) 出发，在网格中能够到达多少个位置。\n限制条件是：一个位置 (x, y) 的坐标数位和不能大于 k。\n\n## 思路\n1. 用 BFS 从起点开始搜索。\n2. 每次从队列中取出一个点，尝试向上下左右四个方向扩展。\n3. 扩展时需要判断：\n    - 是否越界；\n    - 是否已经访问过；\n    - 坐标数位和是否大于 k。\n4. 满足条件的点加入队列，并标记为已访问。\n5. 最终统计出所有可达点的数量。\n\n## 为什么用 BFS：\nBFS 可以按层遍历所有可达状态，适合统计连通区域中的点数。\n\n## 时间复杂度：\n每个格子最多被访问一次，因此复杂度为 O(n*m)。",
+      "code_cpp": "#include <algorithm>\n#include <iostream>\n#include <queue>\n\nusing namespace std;\n\ntypedef pair<int , int> PII;\nconst int N=55;\n\nbool st[N][N]; //标记是否遍历过\nint n,m,k;\n\nbool check(int x,int y){\n    int p=0; //计算坐标的各位数字之和\n    while(x){\n        p+=x%10;\n        x/=10;\n    }\n    while(y){\n        p+=y%10;\n        y/=10;\n    }\n    return p>k; //如果大于k，则返回true，表示不能遍历\n}\n\nint bfs(int sx,int sy){\n    if(m==0||n==0) return 0; //如果m或者n为0，则返回0\n    queue<PII> q;\n    q.push({sx,sy}); //将起点加入队列\n    st[sx][sy]=true; //标记为已遍历\n    int dx[4]={-1,0,1,0};\n    int dy[4]={0,1,0,-1};\n\n    int res=0; \n\n    while(q.size()){ //队列为空的时候退出广搜\n        auto t=q.front(); //取出队首元素\n        q.pop();          //弹出对头\n        res++;            //遍历的点数加一\n        for(int i=0;i<4;i++){\n            int x=t.first+dx[i],y=t.second+dy[i];\n            if(x<0||x>=n||y<0||y>=m||st[x][y]||check(x,y)) continue; //越界或者已经遍历过\n            st[x][y]=true; //标记为已遍历\n            q.push({x,y}); //将下一个点加入队列\n        }\n    }\n    return res;\n}\n\nint main(){\n    cin>>k>>m>>n;\n    cout<<bfs(0,0)<<endl;\n    return 0;\n}",
+      "explanation_python": "",
+      "code_python": "",
+      "id": 54,
+      "createdAt": "2026-07-09T01:30:02.026Z"
+    },
+    {
+      "title": "加农的入侵",
+      "tags": [
+        "广搜BFS"
+      ],
+      "difficulty": "中",
+      "source": "XMUOJ | 2026年程序设计实践例题(05李胜睿班)",
+      "original_problem": "## 描述\n\n加农是罪的化身，所到之处污秽遍地。原先富丽堂皇的海鲁拉城堡也被加农污秽了。\n\n根据调查，加农污秽一片地区有如下规律：\n\n下图是一个矩形区域，Y=3,X=4。\n\n\n\".\"表示干净区域，而\"*\"表示障碍物。\n\n如果加农一开始在左下角(1,1），那么加农将会以如下态势污染区域：\n\n\n加农将在4天后污染整个区域。\n\n设区域为矩形Y×X（1<=Y,X<=100），假设加农从(Mx,My)开始扩散，请问经过几天，加农会完全占据这个区域呢？\n\n\n## 输入\n\n* 第一行: 四个由空格隔开的整数: X, Y, Mx, My\n* 第2到第Y+1行:每行包含一个由X个字符（\".\"表示干净区域，而\"*\"表示障碍物。）构成的字符串，共同描绘了草地的完整地图。\n\n(1≤X,Y≤100)\n\n\n## 输出\n\n输出一个整数，表示加农完全占领该区域所需要的天数。\n\n\n## 输入样例 1 \n\n4 3 1 1\n....\n..*.\n.**.\n## 输出样例 1\n\n4\n## 输入样例 2 \n\n10 10 7 5\n*.........\n..........\n........*.\n..........\n.........*\n..........\n..........\n..........\n..*.......\n..........\n## 输出样例 2\n\n6",
+      "explanation_cpp": "## 题意理解\n    给定一个 n 行 m 列的地图，起点和若干障碍物已经给出。\n    每一天可以向 8 个方向覆盖，问从起点出发覆盖整个地图需要几天，\n    可以转换为可以走到离起点的最大距离。\n\n\n## 核心思路\n    由于每次移动的代价都相同，适合用广度优先搜索（BFS）。\n    BFS 的特点是：先访问到的点一定是距离起点更近的点。\n    因此第一次到达某个格子时，它的距离就是最短距离。\n\n\n## 状态设计\n    dist[x][y] 表示从起点到 (x, y) 的最短步数：\n    - 初始化为 -1，表示未访问\n    - 起点距离设为 0\n\n\n## BFS 过程\n    - 将起点入队\n    - 每次取出队首位置，向 8 个方向扩展\n    - 如果新位置越界、是障碍物 '*'、或者已经访问过，就跳过\n    - 否则更新距离并入队\n    - 同时维护一个 res，记录搜索过程中出现的最大距离\n\n\n## 坐标处理\n    题目中的坐标系和数组下标方向可能不同，所以代码中把起点的纵坐标做了转换：\n    start.first = n + 1 - start.first;\n    这样就能和数组从上到下递增的行号对应起来。\n\n\n## 复杂度分析\n    每个格子最多入队一次，每次检查 8 个方向。\n    时间复杂度：O(n * m)\n    空间复杂度：O(n * m)\n\n\n## 代码实现要点\n    - 用 queue 维护 BFS 队列\n    - 用 dist 数组判重并记录距离\n    - 用 dx、dy 表示 8 个方向",
+      "code_cpp": "#include <iostream>\n#include <queue>\n#include <algorithm>\n#include <cstring>\n\nusing namespace std;\n\nconst int N=110;\nint n,m;\ntypedef pair<int,int> PII;\nPII start;   //起点坐标\nchar g[N][N]; //地图\nint dist[N][N]; //记录每个点到起点的距离\n\nconst int dx[8]={-1,-1,-1,0,0,1,1,1};\nconst int dy[8]={-1,0,1,-1,1,-1,0,1};\n\nint bfs (){\n    memset(dist,-1,sizeof dist); \n    //初始化距离数组为-1,表示未访问过\n    queue<PII> q;\n    q.push(start); //将起点加入队列\n\n    dist[start.first][start.second]=0; \n    //起点距离为0\n\n    int res=0; //最远距离\n    while(q.size()){\n        auto t=q.front();\n        q.pop();\n\n        //遍历八个方向\n        for(int i=0;i<8;i++){\n            int x=t.first+dx[i],y=t.second+dy[i];\n\n            if(x<1||x>n||y<1||y>m) continue; \n            //判断是否越界\n\n            if(g[x][y]=='*'||dist[x][y]!=-1) continue;\n            //如果是障碍物或者已经访问过，则跳过\n\n            dist[x][y]=dist[t.first][t.second]+1;\n            //距离+1\n\n            res=max(res,dist[x][y]);\n\n            q.push({x,y}); //将下一个点加入队列\n        }\n    }\n    return res;\n}\n\nint main(){\n    cin>>m>>n>>start.second>>start.first;\n\n    start.first=n+1-start.first; \n    //将起点的纵坐标转换为数组下标\n\n    for(int i=1;i<=n;i++) \n        cin>>(g[i]+1); //输入地图\n\n    cout<<bfs()<<endl; \n        \n}",
+      "explanation_python": "",
+      "code_python": "",
+      "id": 55,
+      "createdAt": "2026-07-09T02:02:03.123Z"
+    },
+    {
+      "title": "骑士林克的怜悯2",
+      "tags": [
+        "广搜BFS"
+      ],
+      "difficulty": "中",
+      "source": "XMUOJ | 2026年程序设计实践例题(05李胜睿班)",
+      "original_problem": "## 描述\n\n\n帮助自己的2D骑士同伴进入到变形棋盘世界不久，林克意识到既然棋盘可变，但是骑士们的战斗水平却没有长进。\n\n虽然可以在见到更多的风景，探索更多不同的空间，但是如果自身的实力没有提升，那么骑士们感受不到那真正的自由以及成长的快乐。\n\n林克找到去到阿卡来研究所，得到新的道具——试炼棋盘。\n\n这个新道具可以在骑士的2D空间中创造试炼场以及2D守护者，让骑士们可以开始实战演练，提升攻击力。\n\n如下图是一个10列11行的棋盘（11×10）：\n\nK代表骑士的位置，H代表守护者的位置。\n\n. 代表可移动的位置，*代表障碍物。\n\nhttp://www.xmuoj.com/public/upload/7b7e6811e1.png\n\n骑士可以按照下图中的A,B,C,D...这条路径用5次跳跃，抵达守护者的位置偷袭它。（有可能其它路线的长度也是5）：\n\n\n请问，2D骑士要偷袭守护者，至少要跳多少次？\n\n\n## 输入\n\n第一行： 两个数，表示棋盘的列数Column(<=150)和行数Row(<=150)\n\n第二行到结尾: Row行Column列的棋盘。\n\n\n## 输出\n\n一个数，表示跳跃的最小次数。\n\n\n## 输入样例 1 \n\n10 11\n..........\n....*.....\n..........\n...*.*....\n.......*..\n..*..*...H\n*.........\n...*...*..\n.K........\n...*.....*\n..*....*..\n## 输出样例 1\n\n5\n## 输入样例 2 \n\n15 18\n...............\n..*............\n...............\n...*........**.\n.......*.*.....\n...K.*.........\n...............\n..**...........\n.*....*......*.\n........**.*...\n...............\n.....*......*..\n.*........*....\n...............\n....H..........\n.**.*..*.......\n...............\n..*....*.......\n## 输出样例 2\n\n6",
+      "explanation_cpp": "## 题意\n本题要求求出骑士从 K 到 H 的最少步数。骑士每次只能按“日”字走法移动，且每一步代价相同，\n因此可以用 BFS（广度优先搜索）来求最短路。\n\n## 做法\n1. 读入地图，找到起点 K 和终点 H。\n2. 用 dist 数组记录每个位置第一次被访问时的步数，初始设为 -1，表示未访问。\n3. 从起点开始进行 BFS，枚举 8 个马步方向：\n    - 越界则跳过；\n    - 遇到障碍 '*' 则跳过；\n    - 已访问过的位置也跳过。\n4. 将合法位置的距离更新为当前步数 + 1，并加入队列继续搜索。\n5. 一旦搜索到终点 H，当前步数就是最短路径长度，直接返回。\n\n## 正确性\nBFS 按层扩展，先到达的状态一定步数更少，所以第一次到达终点时得到的就是最短答案。\n\n## 复杂度\n每个格子最多进入队列一次，每次枚举 8 个方向，时间复杂度为 O(n*m)。",
+      "code_cpp": "#include <iostream>\n#include <queue>\n#include <algorithm>\n#include <cstring>\nusing namespace std;\n\ntypedef pair<int,int> PII;\nconst int N=155;\n\nint n,m;\nPII strat;\nPII ending;\nchar g[N][N];\nint dist[N][N];\n\nint dx[]={-2,-2,-1,-1,1,1,2,2};\nint dy[]={-1,1,-2,2,-2,2,-1,1};\n\nint dfs(){\n    memset(dist,-1,sizeof dist);\n\n    dist[strat.first][strat.second]=0;\n    queue<PII> q;\n    q.push(strat);\n\n    while(q.size()){\n        auto t=q.front();\n        q.pop();\n\n        for(int i=0;i<8;i++){\n            int x=t.first + dx[i],y=t.second + dy[i];\n            if(x<0||x>=n||y<0||y>=m) continue;\n            if(g[x][y]=='*'||dist[x][y]!=-1) continue;\n\n            dist[x][y]=dist[t.first][t.second]+1;\n\n            //如果到达终点，则返回距离\n            if(make_pair(x,y)==ending){ \n                return dist[x][y];\n            }\n\n            q.push({x,y});//将下一个点加入队列\n        }\n    }\n    return -1; // 如果无法到达终点，返回-1\n}\n\nint main(){\n    cin>>m>>n;\n    for(int i=0;i<n;i++) cin>>g[i];\n\n    for(int i=0;i<n;i++){\n        for(int j=0;j<m;j++){\n            if(g[i][j]=='K') strat={i,j}; //起点\n            if(g[i][j]=='H') ending={i,j}; //终点\n        }\n    }\n\n    cout<<dfs()<<endl; //输出最短路径长度\n    return 0;\n}",
+      "explanation_python": "",
+      "code_python": "",
+      "id": 56,
+      "createdAt": "2026-07-09T02:20:24.691Z",
+      "updatedAt": "2026-07-09T09:07:09.177Z"
+    },
+    {
+      "title": "公主的攻击范围",
+      "tags": [
+        "广搜BFS"
+      ],
+      "difficulty": "高",
+      "source": "XMUOJ | 2026年程序设计实践例题(05李胜睿班)",
+      "original_problem": "## 描述\n\n\n\n塞尔达公主瘦弱的身体里面蕴含着不可思议的神圣力量，这个力量从公主所在的位置释放，可以逐层扩散到加农污秽掌控的区域。\n\n给定一个N行M列的区域，代号为1的区域是公主能力释放的初始区，代号为0的区域表示需要洁净的区域。\n\n每经过1毫秒，公主的神圣之光向外扩散一格，洁净相邻区域（4个方向），请计算每个标记为0的区域中加农的势力最多还能得瑟几毫秒。\n\n\n格子与格子之间的距离使用曼哈顿距离计算。\n\n提示：\n\n\n根据如上公式可知：曼哈顿距离指两点之间的行坐标i距离和列坐标j距离之和。\n\n题目的意思就是求出矩阵中所有节点为0的点，到节点为1的点的曼哈顿距离。\n\n\n## 输入\n\n第一行两个整数n,m。\n\n接下来一个N行M列的01矩阵，数字之间没有空格。\n\n数据范围\n1≤N,M≤1000\n\n\n## 输出\n\n一个N行M列的矩阵B，相邻两个整数之间用一个空格隔开。每个整数表示加农势力存在的毫秒数（最小曼哈顿距离值）\n\n\n## 输入样例 1 \n\n3 4\n0001\n0011\n0110\n## 输出样例 1\n\n3 2 1 0\n2 1 0 0\n1 0 0 1",
+      "explanation_cpp": "## 题意（简要）\n给定一个 n x m 的网格，网格中字符 '1' 表示若干个起点（公主的位置或攻击源），\n要求对每个格子求到最近起点的最短曼哈顿距离。\n\n## 方法：多源广度优先搜索(BFS)。\n1.将所有值为 '1' 的格子视为 BFS 的起点，距离初始化为 0 并入队。\n2.其余格子距离初始化为 -1 表示未访问。\n3.进行标准 BFS，四个方向扩展：若邻居未访问，则其距离为当前点距离 + 1，加入队列。\n4.BFS 结束后，dist[][] 即为每个格子到最近起点的最短距离（未被任何起点可达的格子保持 -1）。\n\n## 时间复杂度：O(n*m)，每个格子最多入队一次。\n空间复杂度：O(n*m)，用于距离矩阵和队列。",
+      "code_cpp": "#include <iostream>\n#include <queue>\n#include <algorithm>\n#include <cstring>\n#include <utility>\n\nusing namespace std;\nconst int N=1010;\n\ntypedef pair<int,int> PII;\n\nint n,m;\nchar g[N][N]; \nint dist[N][N]; //距离矩阵\n\nint dx[]={-1,0,1,0},dy[]={0,1,0,-1};\n\n//打印距离矩阵\nvoid printDistMap(int n,int m){\n    for(int i=0;i<n;i++){\n        for(int j=0;j<m;j++){\n            cout<<dist[i][j]<<\" \";\n        }\n        cout<<endl;\n    }\n}\n\n//多原点广搜\nvoid bfs(){\n    queue<PII> q;\n    memset(dist,-1,sizeof(dist)); //初始化距离矩阵为-1，表示未访问过\n    for(int i=0;i<n;i++)\n      for(int j=0;j<m;j++){\n        if(g[i][j]=='1'){\n            dist[i][j]=0; //起点距离为0\n            q.push({i,j}); //将起点加入队列\n        }\n      }\n    while(q.size()){\n        auto t=q.front();\n        q.pop();\n\n        for(int i=0;i<4;i++){\n            int x=t.first+dx[i],y=t.second+dy[i];\n            if(x<0||x>=n||y<0||y>=m) continue; //越界\n            if(dist[x][y]!=-1) continue; //障碍物或者已经访问过\n\n            dist[x][y]=dist[t.first][t.second]+1; //距离+1\n            q.push({x,y}); //将下一个点加入队列\n        }\n    }\n}\n\nint main(){\n    cin>>n>>m;\n    for(int i=0;i<n;i++) cin>>g[i];\n\n    bfs(); //调用多原点广搜\n    printDistMap(n,m); //打印距离矩阵\n    return 0;\n}",
+      "explanation_python": "",
+      "code_python": "",
+      "id": 57,
+      "createdAt": "2026-07-09T03:01:11.153Z",
+      "updatedAt": "2026-07-09T04:15:38.443Z"
+    },
+    {
+      "title": "滚石柱",
+      "tags": [
+        "广搜BFS",
+        "精选题库"
+      ],
+      "difficulty": "高",
+      "source": "XMUOJ | 2026年程序设计实践例题(05李胜睿班)",
+      "original_problem": "## 描述\n\n努力练习用磁铁拖拉滚动大铁箱的林克，想起了自己小时候喜欢的一个游戏，滚石柱。\n\n\n这个游戏的任务是滚动一个1×1×2的长方体石柱，把它滚动到目的地。\n\n石柱在地面上有3种放置形式，“立”在地面上（1×1的面接触地面）横“躺”或者竖“趟”在地面上（1×2的面接触地面）\n\n迷宫是一个N行M列的矩阵，每个位置可能是硬地（用”.”表示）、易碎地面（用”E”表示）、禁地（用”#”表示）、起点（用”X”表示）或终点（用”O”表示）。\n\n在每一步操作中，可以按上下左右四个键之一。\n\n按下按键之后，石柱向对应的方向沿着棱滚动90度。\n\n任意时刻，长方体不能有任何部位接触禁地，并且不能立在易碎地面上。\n\n字符”X”标识长方体的起始位置，地图上可能有一个”X”或者两个相邻的”X”。\n\n地图上唯一的一个字符”O”标识目标位置。\n\n求把石柱移动到目标位置（即立在”O”上）所需要的最少步数。\n\n在移动过程中，”X”和”O”标识的位置都可以看作是硬地被利用。\n\n\n## 输入\n\n输入包含多组测试用例。\n\n对于每个测试用例，第一行包括两个整数N和M。\n\n接下来N行用来描述地图，每行包括M个字符，每个字符表示一块地面的具体状态。\n\n当输入用例N=0，M=0时，表示输入终止，且该用例无需考虑。\n\n数据范围\n3≤N,M≤500\n\n\n## 输出\n\n每个用例输出一个整数表示所需的最少步数，如果无解则输出”Impossible”。\n\n每个结果占一行。\n\n\n## 输入样例 1 \n\n7 7\n#######\n#..X###\n#..##O#\n#....E#\n#....E#\n#.....#\n#######\n0 0\n## 输出样例 1\n\n10",
+      "explanation_cpp": "## 提示\n在每一步操作中，可以按上下左右四个键之一。\n- 按下按键之后，石柱向对应的方向沿着棱滚动90度。\n- 问题：如何设计石柱的状态转换函数？\n## 理解题意\n- 任意时刻，长方体不能有任何部位接触禁地，并且不能立在易碎地面上。——如何设计isValid()函数？\n- 字符”X”标识长方体的起始位置，地图上可能有一个”X”或者两个相邻的”X”。——如何表示Start点？\n- 地图上唯一的一个字符”O”标识目标位置。——Target点如何表示？\n- 求把石柱移动到目标位置（即立在”O”上）所需要的最少步数。——结束状态如何表示？\n- 在移动过程中， ”X”和”O”标识的位置都可以看作是硬地被利用。\n## 石柱采用三元组（X,Y,Z）\n-（X,Y）表示石柱的基坐标 \n- Z：0表示站立  1表示横躺  2表示竖躺\n-（X,Y,Z）的状态转移表\n|转移表|立（x,y,0）|横（x,y,1）|竖（x,y,2）|\n|上|（-2,0,2）|（-1,0，1）|（-1,0,0）|\n|下|（+1,0,2）|（+1,0,1）|（+2,0,0）|\n|左|（0，-2,1）|（0，-1,0）|（0，-1,2）|\n|右|（0，+1,1）|（0，+2,0）|（0，+1,2）|\n## 重要函数\n- isValide():判断位置是否合法\n- BuildMap():初始化游戏地图，寻找起点和终点\n- bfs():直接套用模板",
+      "code_cpp": "#include <iostream>\n#include <queue>\n#include <algorithm>\n#include <cstring>\n\nusing namespace std;\n\nconst int N=505;\nint n,m;\nchar g[N][N]; //地图\nint dist[N][N][3]; //距离矩阵\n\nstruct Stone{\n    int x,y,z; //X,Y）表示石柱的基坐标 \n   //Z：0表示站立  1表示横躺  2表示竖躺\n    Stone(int a,int b,int c):x(a),y(b),z(c){} ;\n    Stone():x(0),y(0),z(0){} ;\n};\n\nqueue<Stone> q;\nStone start,target; //起点、终点的坐标\n\n// void displayStone(Stone s){\n//     cout<<\"(\"<<s.x<<\",\"<<s.y<<\",\"<<s.z<<\")\"<<endl;\n// }\n\n//四种方向，三种状态\n//每种状态的坐标以方块的左上顶点的格子为基准点\nint dxyz[4][3][3] = {\n    // up\n    {{-2,0,2}, {-1,0,1}, {-1,0,0}},\n    // right\n    {{0,1,1}, {0,2,0}, {0,1,2}},\n    // down\n    {{1,0,2}, {1,0,1}, {2,0,0}},\n    // left\n    {{0,-2,1}, {0,-1,0}, {0,-1,2}}\n};\n\nStone moveStone(Stone &p,int i){\n    int x=p.x+dxyz[i][p.z][0];  //计算偏移量\n    int y=p.y+dxyz[i][p.z][1];  //计算偏移量\n    int z=dxyz[i][p.z][2];      //查表得到状态\n    \n    return Stone(x,y,z);\n}\n\nbool isInside(int x,int y){\n    return x>=0 && x<n && y>=0 && y<m; //判断是否在地图内\n}\n\nbool isValid(Stone t){\n    if(!isInside(t.x,t.y)||g[t.x][t.y]=='#') \n        return false;\n\n    if(t.z==2&&(!isInside(t.x+1,t.y)||g[t.x+1][t.y]=='#')) \n        return false;//竖躺到禁区\n    \n    if(t.z==1&&(!isInside(t.x,t.y+1)||g[t.x][t.y+1]=='#'))\n        return false;//横躺到禁区\n    \n    if(t.z==0&&g[t.x][t.y]=='E')\n        return false; //站立到易碎区\n    return true;\n}\n\nbool isVisted(Stone &t){\n    return dist[t.x][t.y][t.z]!=-1; //判断是否访问过\n}\n\nvoid BuildMap(int n,int m){\n    memset(g,'#',sizeof g); //初始化地图为禁区\n    memset(dist,-1,sizeof dist); //初始化距离为-1，表示未访问过\n\n    for(int i=0;i<n;i++) cin>>g[i]; \n\n    //找到起点和终点\n    for(int i=0;i<n;i++)\n      for(int j=0;j<m;j++)\n      {\n        char t=g[i][j];\n        if(t=='X'){\n\n            start=Stone(i,j,0); //起点\n            g[i][j]='.'; //将起点标记为可行走区域\n\n            //搜索相邻格子是否有'X'\n            if(isInside(i+1,j)&&g[i+1][j]=='X'){\n                start.z=2; //竖躺\n                g[i+1][j]='.'; //将相邻格子标记为可行走区域\n            }\n            if(isInside(i,j+1)&&g[i][j+1]=='X'){\n                start.z=1; //横躺\n                g[i][j+1]='.'; //将相邻格子标记为可行走区域\n            }\n        }\n        //找到终点,记录状态target\n        if(t=='O'){\n            target=Stone(i,j,0);\n        }\n      }\n}\n\nint bfs(Stone &s){\n    while(q.size()) q.pop(); //清空队列\n    q.push(s); //将起点加入队列\n    dist[s.x][s.y][s.z]=0; //起点距离为0\n\n    while(q.size()){\n        auto t=q.front(); //取出队首元素\n        q.pop();          //弹出队首元素\n\n        for(int i=0;i<4;i++){\n            Stone next=moveStone(t,i); //计算下一个状态\n            if(!isValid(next)||isVisted(next)) continue; \n            //如果不合法或者已经访问过，则跳过\n\n            dist[next.x][next.y][next.z]=dist[t.x][t.y][t.z]+1; //距离+1\n            q.push(next); //将下一个状态加入队列\n\n            if(next.x==target.x&&next.y==target.y&&next.z==target.z) \n                return dist[next.x][next.y][next.z]; \n            //到达终点，返回距离\n        }\n    }\n    return -1; //无法到达终点，返回-1\n}\n\nint main(){\n    while(cin>>n>>m && (n||m)){\n        BuildMap(n,m);\n        int res=bfs(start);\n        if(res==-1) \n            cout<<\"Impossible\"<<endl; //无法到达终点\n        else cout<<res<<endl; //输出最短路径长度\n    }\n    return 0;\n}",
+      "explanation_python": "",
+      "code_python": "",
+      "id": 58,
+      "createdAt": "2026-07-09T04:14:55.482Z"
+    },
+    {
+      "title": "Dijkstra求最短路(1)",
+      "tags": [
+        "广搜BFS",
+        "精选题库"
+      ],
+      "difficulty": "中",
+      "source": "XMUOJ | 2026年程序设计实践例题(05李胜睿班)",
+      "original_problem": "## 描述\n\n给定一个n个点m条边的有向图，图中可能存在重边和自环，所有边权均为正值。\n\n请你求出1号点到n号点的最短距离，如果无法从1号点走到n号点，则输出-1。\n\n\n## 输入\n\n第一行包含整数n和m。\n\n接下来m行每行包含三个整数x，y，z，表示存在一条从点x到点y的有向边，边长为z。\n\n\n## 输出\n\n输出一个整数，表示1号点到n号点的最短距离。\n\n如果路径不存在，则输出-1。\n\n\n## 输入样例 1 \n\n3 3\n1 2 2\n2 3 1\n1 3 4\n## 输出样例 1\n\n3",
+      "explanation_cpp": "## 问题描述\n\n给定一个 n 个点、m 条边的有向图，可能存在重边和自环，所有边权均为 正数。求从 1 号点到 n 号点的最短距离，若不可达则输出 -1。\n\n## 算法选择\n\n由于边权均为正，且数据范围适合（本题中 n ≤ 505，边数 m 未明确但邻接矩阵可承受），我们采用 朴素 Dijkstra 算法。该算法时间复杂度为 O(n²)，在 n 较小（如 500 左右）时效率足够，且实现简单，无需堆优化。\n\n## 代码结构解析\n\n#### 1. 全局变量与初始化\n\n邻接矩阵：用二维数组存储边权，初始化为极大值 0x3f3f3f3f，表示两点间无边。\n\ndist 数组：保存当前已知最短距离。\n\nst 数组：标记已确定最短路的顶点（即“已访问”）。\n\n#### 2. 输入处理\n\n用 memset 将邻接矩阵所有值设为 0x3f3f3f3f（即无穷大）。\n\n对于每条输入边，若存在重边，只保留权值最小的那条，因为自环（a = b）不会影响最短路（权值为正），也可忽略。\n\n#### 3. Dijkstra 核心逻辑（函数 dijkstra）\n\n1.初始化：起点距离为 0，其余为无穷大。\n2.迭代 n 次：每次从未标记的点中选出距离起点最近的点 t（第一次必然是起点 1）。\n3.用 t 作为中间点，尝试更新其他点的距离：dist[j] = min(dist[j], dist[t] + g[t][j])。\n4.标记：t 的最短路已确定，以后不再处理。\n\n## 正确性说明\n\nDijkstra 算法基于贪心策略：每次选择距离起点最近且未确定的点，该点的最短距离已经不可能被其它未确定的点更新（因为所有边权非负，若经由其它未确定的点到达 t，则距离必定 ≥ 当前已选点的距离）。因此，每次选出的 t 就是当前剩余点中距离最小的，其值即为最终最短距离。\n\n重复 n 次后，所有点的最短路均被确定（若某点不可达，其距离保持为无穷大）。\n\n## 复杂度分析\n\n时间复杂度：外层循环 n 次，内层找最小点 O(n)，更新 O(n)，总 O(n²)。对于 n ≤ 500，约 25 万次操作，非常快。\n\n空间复杂度：邻接矩阵 O(n²)，dist 和 st 各 O(n)，整体 O(n²)。",
+      "code_cpp": "#include <iostream>\n#include <queue>\n#include <algorithm>\n#include <cstring>\n\nusing namespace std;\nconst int N=505;\nint g[N][N];   //邻接矩阵\nint dist[N];   //距离矩阵\nbool st[N];    //状态矩阵\nint n,m;\n\nint dijkstra(){\n    memset(dist,0x3f,sizeof(dist));\n    dist[1]=0; //起点距离为0\n\n    //暴力枚举\n    for(int i=0;i<n;i++){\n        int t=-1;  \n        for(int j=1;j<=n;j++){\n            if(!st[j]&&(t==-1||dist[j]<dist[t])) \n                t=j; //找到未访问的最短距离点\n        }\n        //用点t的dist[t]更新其他点的dist\n        for(int j=1;j<=n;j++){\n            dist[j]=min(dist[j],dist[t]+g[t][j]);\n        }\n        st[t]=true; //标记点t为已访问\n    }\n    if(dist[n]==0x3f3f3f3f) return -1; \n    //如果终点距离为无穷大，表示无法到达\n    return dist[n]; //返回终点的最短距离\n}\n\nint main(){\n    cin>>n>>m;\n    memset(g,0x3f,sizeof g); \n    //初始化邻接矩阵为无穷大\n\n    for(int i=0;i<m;i++){\n        int a,b,w;\n        cin>>a>>b>>w;\n\n        g[a][b]=min(g[a][b],w); \n        //如果有多条边，取最小的权值\n    }\n    cout<<dijkstra()<<endl; \n    \n    return 0;\n}",
+      "explanation_python": "",
+      "code_python": "",
+      "id": 59,
+      "createdAt": "2026-07-09T07:03:47.131Z"
+    },
+    {
+      "title": "Dijkstra求最短路(2)",
+      "tags": [
+        "深搜DFS",
+        "精选题库"
+      ],
+      "difficulty": "中",
+      "source": "XMUOJ | 2026年程序设计实践例题(05李胜睿班)",
+      "original_problem": "## 描述\n\n给定一个n个点m条边的有向图，图中可能存在重边和自环，所有边权均为非负值。\n\n请你求出1号点到n号点的最短距离，如果无法从1号点走到n号点，则输出-1。\n\n数据范围：1<=n,m<=1.5*10^5\n\n\n## 输入\n\n第一行包含整数n和m。\n\n接下来m行每行包含三个整数x，y，z，表示存在一条从点x到点y的有向边，边长为z。\n\n\n## 输出\n\n输出一个整数，表示1号点到n号点的最短距离。\n\n如果路径不存在，则输出-1。\n\n\n## 输入样例 1 \n\n3 3\n1 2 2\n2 3 1\n1 3 4\n## 输出样例 1\n\n3",
+      "explanation_cpp": "## 问题描述\n\n给定一个 n 个点、m 条边的有向图，可能存在重边和自环，所有边权均为 正数。求从 1 号点到 n 号点的最短距离，若不可达则输出 -1。\n\n## 算法选择\n\n由于图中边数可能很大（n 可达 10⁶），朴素 Dijkstra（O(n²)）会超时。此时应使用 堆优化 Dijkstra，通过优先队列维护未确定最短路的点，每次 O(log n) 取出距离最小的点，总时间复杂度降至 O((n + m) log n)，适用于稀疏图或大规模图。\n\n## 数据结构说明\n\n代码中采用了 邻接表（数组模拟链表） 存储有向图，这是空间高效且适合遍历的方式。\n\nh[N]：头指针数组，h[a] 存储从 a 出发的第一条边的索引（在 e, w, ne 数组中的位置）。\n\ne[idx]：第 idx 条边的终点。\n\nw[idx]：第 idx 条边的权值。\n\nne[idx]：第 idx 条边的下一条边的索引，用于链表遍历。\n\nidx：边计数器，每次加 1。\n\n\ndist[N]：存储起点 1 到每个点的当前最短距离，初始化为极大值 0x3f3f3f3f。\n\nst[N]：布尔数组，标记某个点的最短距离是否已最终确定（即已被取出过）。\n\n优先队列（小根堆）：priority_queue<PII, vector<PII>, greater<PII>> heap;\n存储 (距离, 节点编号) 对，按距离从小到大排列，保证每次取出的都是当前未确定点中距离最小的。\n\n## 核心步骤分解\n\n1.建图（add 函数）\n```cpp\nvoid add(int a, int b, int c) {\n    e[idx] = b, w[idx] = c, ne[idx] = h[a], h[a] = idx++;\n}```\n采用 头插法，将新边插入到 a 的邻接表头部。这样遍历时从 h[a] 开始沿 ne 指针即可访问所有出边。\n\n2.Dijkstra 主逻辑\n初始化：\n\n将所有距离置为无穷大（memset(dist, 0x3f, sizeof dist)），dist[1] = 0。\n\n将起点 (0, 1) 入堆。\n\n迭代过程：\n\n```cpp\nwhile (heap.size()) {\n    auto t = heap.top(); heap.pop();\n    int ver = t.second, distance = t.first;\n    if (st[ver]) continue;      // 已确定最短路的点跳过\n    st[ver] = true;             // 标记为已确定\n\n    for (int i = h[ver]; i != -1; i = ne[i]) {\n        int j = e[i];\n        if (dist[j] > dist[ver] + w[i]) {\n            dist[j] = dist[ver] + w[i];\n            heap.push({dist[j], j});\n        }\n    }\n}```\n每次取出堆顶元素，它一定是当前未确定点中距离最小的。由于边权非负，这个距离就是最终最短距离，故标记 st[ver] = true（以后不再更新）。\n\n遍历 ver 的所有出边，对邻接点 j 执行 松弛操作：若经由 ver 到达 j 的距离更短，则更新 dist[j] 并将新状态 (dist[j], j) 入堆。注意，即使 j 已被标记确定，也不会再更新（因为 Dijkstra 的贪心性质保证了已确定点的距离不会再被改善），但代码中未显式判断 st[j]，由于已确定的点不会再被松弛后的小值更新（因为它们的距离已经是最小），所以即使入堆也会被 st[ver] 跳过，不影响结果。\n\n结果判断：\n循环结束后，dist[n] 存储了 1 到 n 的最短距离。若仍为 0x3f3f3f3f，说明 n 不可达，返回 -1；否则返回 dist[n]。\n\n## 正确性\n\nDijkstra 算法的核心是贪心策略：每次从未确定点中选择距离最小的点，该距离即为最终最短距离。因为所有边权非负，不可能通过其他未确定的点再绕路得到更小的距离。堆优化的作用只是加速“选取最小点”的过程，不影响正确性。对于不可达的点，其距离始终保持无穷大。\n\n## 复杂度分析\n\n时间复杂度：每个顶点最多入堆一次（但可能多次更新，实际入堆次数不超过边数 m），每次堆操作 O(log m)（实际 O(log n)），总复杂度 O((n + m) log n)。对于 n, m 在 10⁶ 级别，完全可行。\n\n空间复杂度：邻接表占用 O(n + m)，dist 和 st 为 O(n)，优先队列 O(m)。整体 O(n + m)。",
+      "code_cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\ntypedef pair<int,int> PII;\n\nconst int N=1e6+10;\nint n,m;\nint h[N],w[N],e[N],ne[N],idx; //邻接表\n//h[i]表示点i的第一条边的编号，\n//e[i]表示点i的第i条边的终点，\n//w[i]表示点i的第i条边的权值，\n//ne[i]表示点i的第i条边的下一条边的编号\nint dist[N]; //距离矩阵\nbool st[N];  //状态矩阵\n\n//建边函数（数组模拟链表）\nvoid add(int a,int b,int c){\n    e[idx]=b,w[idx]=c,ne[idx]=h[a],h[a]=idx++;\n}\n\n//改进版，使用小根堆\nint dijkstra(){\n    memset(dist,0x3f,sizeof dist);\n    dist[1]=0; //起点距离为0\n\n    //使用优先队列，greater<PII>表示小根堆\n    priority_queue<PII,vector<PII>,greater<PII>> heap;\n    // pair的第一个元素是距离，第二个元素是点的编号\n    heap.push({0,1}); //将起点加入小根堆\n\n    while(heap.size()){\n        auto t=heap.top(); //取出堆顶元素\n        heap.pop();        //弹出堆顶元素\n        int ver=t.second,distance=t.first;\n\n        if(st[ver]) continue; //如果已经访问过，则跳过\n        st[ver]=true;         //标记为已访问\n\n        //遍历ver的所有邻边\n        for(int i=h[ver];i!=-1;i=ne[i]){\n            int j=e[i];\n            if(dist[j]>dist[ver]+w[i]){\n                dist[j]=dist[ver]+w[i]; //更新距离\n                heap.push({dist[j],j}); //将更新后的点加入小根堆\n            }\n        }\n    }\n\n    if(dist[n]==0x3f3f3f3f) return -1; \n    //如果终点距离为无穷大，表示无法到达\n    return dist[n]; //返回终点的最短距离\n}\n\nint main(){\n    cin>>n>>m;\n    memset(h,-1,sizeof h); \n    //初始化邻接表\n    for(int i=0;i<m;i++){\n        int a,b,c;\n        cin>>a>>b>>c;\n        add(a,b,c); //建边\n    }\n    cout<<dijkstra()<<endl; \n    \n    return 0;\n}",
+      "explanation_python": "",
+      "code_python": "",
+      "id": 60,
+      "createdAt": "2026-07-09T07:27:18.162Z"
+    },
+    {
+      "title": "维修电路",
+      "tags": [
+        "广搜BFS",
+        "精选题库"
+      ],
+      "difficulty": "中",
+      "source": "XMUOJ | 2026年程序设计实践例题(05李胜睿班)",
+      "original_problem": "## 描述\n\n每个格点都是电线的接点，每个格子都包含一个电子元件。\n\n电子元件的主要部分是一个可旋转的、连接一条对角线上的两个接点的短电缆。\n\n在旋转之后，它就可以连接另一条对角线的两个接点。\n\n电路板左上角的接点接入直流电源，右下角的接点接入飞行车的发动装置。\n\n林克发现因为某些元件的方向不小心发生了改变，电路板可能处于断路的状态。\n\n请问如何旋转最少数量的元件，使电源与发动装置重新连同在一起呢？\n\n## 输入\n\n输入文件包含多组测试数据。\n\n第一行包含一个整数T，表示测试数据的数目。\n\n对于每组测试数据，第一行包含正整数R和C，表示电路板的行数和列数。\n\n之后R行，每行C个字符，字符是\"/\"和\"\\\"中的一个，表示标准件的方向。\n\n数据范围\n1<=R,C<=500,\n1<=T<=5\n\n## 输出\n\n对于每组测试数据，在单独的一行输出一个正整数，表示所需的最小旋转次数。\n\n如果无论怎样都不能使得电源和发动机之间连通，输出NO SOLUTION。\n\n\n## 输入样例 1 \n\n1\n3 5\n\\\\/\\\\\n\\\\///\n/\\\\\\\\\n## 输出样例 1\n\n1",
+      "explanation_cpp": "- 根据题意：点与点之间有两种不同权重的边。无需旋转即连通的边权重为0，需要旋转的权重为1\n如果area[0,0]为”\\”，表示电路顶点(0,0)->(1,1)的边权为0，顶点(0,1)->(1,0)的边权 为1.抽象为图意味着(0,0)->(1,1)(1,1)->(0,0) 是一个无向图。\n- 难点一：输入数据中的坐标变换。如何计算边权是0还是1？\n```cpp\nint getWeight(int x,int y,int dir){\n    //相邻对角线的4条边的偏移量\n    int ix[4]={-1,-1,0,0};\n    int iy[4]={-1,0,0,-1};\n    char edge[]=\"\\\\/\\\\/\"; //对应的导线符号\n\n    int newX=x+ix[dir],newY=y+iy[dir];\n    if(area[newX][newY]==edge[dir]) \n        return 0; //如果是导线，权值为0\n    else \n        return 1; //如果需要旋转，权值为1\n}\n```\n\n### 算法一\n\n根据输入数据建图（无向图，有权边 ）\n使用Dijkstra算法计算每个顶点的最短路径(边权只有0和1）\n输出Target顶点的最短路径值（权为1的边之和）\n使用技巧使priority queue变为最小的元素在top()\n\n### 算法二\n根据输入数据建图（无向图，有权边）\n使用**双端队列**替代堆(因为，边权只有0和1）\n边权为0的时候push_front;边权为1的时候push_back()\n输出Target顶点的最短路径值（权为1的边之和）",
+      "code_cpp": "#include <iostream>\n#include <deque>\n#include <cstring>\n#include <algorithm>\nusing namespace std;\n#define INF 0x3f3f3f3f\n\ntypedef pair<int,int> PII;\n\nconst int N=505;\nint n,m;\nchar area[N][N]; //电路连接图\nint dist[N][N];  //顶点的距离值\n\nvoid BuildMap(int n,int m){\n    for(int i=0;i<n;i++)\n        for(int j=0;j<m;j++)\n            cin>>area[i][j];\n}\n\nint getWeight(int x,int y,int dir){\n    //相邻对角线的4条边的偏移量\n    int ix[4]={-1,-1,0,0};\n    int iy[4]={-1,0,-1,0};\n    char edge[]=\"\\\\//\\\\\"; //对应的导线符号\n\n    int newX=x+ix[dir],newY=y+iy[dir];\n    if(area[newX][newY]==edge[dir]) \n        return 0; //如果是导线，权值为0\n    else \n        return 1; //如果需要旋转，权值为1\n}\n\nbool isInside(int x,int y){\n    return x>=0 && x<=n && y>=0 && y<=m; //判断是否在地图内\n}\n\n//扩展相邻点，左上、右上、左下、右下四个方向\nint dx[4]={-1,-1,1,1},dy[4]={-1,1,-1,1}; \n\nint bfs(){\n    //初始化距离矩阵为无穷大\n    memset(dist,INF,sizeof(dist));\n    deque<PII> dq;\n    dist[0][0]=0; //起点距离为0\n    dq.push_back({0,0});\n    \n    while(dq.size()){\n        auto qHead=dq.front(); //取出队首元素\n        dq.pop_front();        //弹出队首元素\n        PII next;\n        for(int i=0;i<4;i++){\n            next.first=qHead.first+dx[i];\n            next.second=qHead.second+dy[i];\n\n            if(!isInside(next.first,next.second)) continue;\n\n            int weight=getWeight(qHead.first,qHead.second,i); //获取权值\n            if(dist[next.first][next.second]>dist[qHead.first][qHead.second]+weight){\n                dist[next.first][next.second]=dist[qHead.first][qHead.second]+weight; \n                //更新距离\n                if(weight==0) \n                    dq.push_front(next); \n                //如果权值为0，加入队首\n                if(weight==1) \n                    dq.push_back(next);           \n                //如果权值为1，加入队尾\n            }\n        }\n    }\n    if(dist[n][m]==INF) return -1;//无法抵达终点，无通路\n    return dist[n][m]; //返回终点的最短距离\n}\n\nint main(){\n    int T;\n    cin>>T;\n    while(T--){\n        cin>>n>>m;\n        memset(area,-1,sizeof area); //初始化地图为禁区\n        BuildMap(n,m);\n        int res=bfs();\n        if(res==-1) cout<<\"NO SOLUTION\"<<endl; \n        else cout<<res<<endl; \n    }\n\n    return 0;\n}",
+      "explanation_python": "",
+      "code_python": "",
+      "id": 61,
+      "createdAt": "2026-07-09T08:33:48.409Z",
+      "updatedAt": "2026-07-09T09:07:23.809Z"
+    },
+    {
+      "title": "突袭路线",
+      "tags": [
+        "广搜BFS",
+        "拓扑排序",
+        "精选题库",
+        "图论"
+      ],
+      "difficulty": "中",
+      "source": "XMUOJ | 2026年程序设计实践例题(05李胜睿班)",
+      "original_problem": "## 描述\n\n为了解救公主，林克必须深入敌后。\n在备战前，他拿出“关系分析仪”扫描敌营中每个士兵之间的关系。\n\n关系分析仪的功能说明如下：\n如果A的活动范围在B的眼皮底下，那么分析仪就会从B出发连一条射线指向A（B-->A).\n\n经过扫描，林克得到全营敌兵的相互关系。有些敌人被多个同伴看顾，有些敌人背后一个替他守望的都没有。\n\n林克决定从背后没有人的敌人开始，潜伏到其背后，突袭之，并且避免被其他人发现。\n\n军营一共有n个敌人，彼此之间的关系有m条射线，请找到一条可以逐个击破敌人的路线图。\n\n如果找不到这样一条突袭路线，请则输出-1.\n\n提示：\n问题转化为：给定一个n个点m条边的有向图，点的编号是1到n，图中可能存在重边和自环。\n\n请输出任意一个该有向图的拓扑序列，如果拓扑序列不存在，则输出-1。\n\n若一个由图中所有点构成的序列A满足：对于图中的每条边(x, y)，x在A中都出现在y之前，则称A是该图的一个拓扑序列。\n\n数据范围：1≤n,m≤10^5\n\n\n## 输入\n\n第一行包含两个整数n和m\n\n接下来m行，每行包含两个整数x和y，表示存在一条从点x到点y的有向边(x, y)。\n\n\n## 输出\n\n共一行，如果存在拓扑序列，则输出拓扑序列。\n\n否则输出-1。\n\n\n## 输入样例 1 \n\n3 3\n1 2\n2 3\n1 3\n## 输出样例 1\n\n1 2 3",
+      "explanation_cpp": "## 题目概述\n\n问题: 给定 n 个点、m 条有向边的有向图（允许重边、自环），求图的任意拓扑序列（将所有点排成序列，使得每条边 x->y 中 x 在 y 之前），若不存在则输出 -1。\n数据范围: 1 ≤ n,m ≤ 1e5。\n## 解题思路（Kahn 拓扑排序 / 入度法）\n\n统计每个点的入度 in[i]。\n把所有入度为 0 的点放入队列（可用普通队列或数组模拟队列）。\n不断从队列弹出一个点 u，将 u 输出到结果序列，并把 u 的所有出边 u->v 对应的 in[v]--，若 in[v] 变为 0 则入队。\n最终若输出的节点数等于 n，则该输出即为一个拓扑序；否则图中存在环，输出 -1。\n## 伪代码\n\n初始化邻接表 head[] = -1，idx = 0，入度 in[1..n] = 0。\nfor 每条边 (a,b): add edge a->b，in[b]++。\n将所有 in[i]==0 的 i 入队。\nwhile 队列非空:\nu = pop(); res.push(u);\nfor 每个 v ∈ adj[u]: in[v]--; if in[v]==0 push v;\nif res.size() == n then 输出 res else 输出 -1。\n## 时间与空间复杂度\n\n时间复杂度：O(n + m)。\n空间复杂度：O(n + m)（邻接表 + 入度数组 + 队列 + 结果数组）。",
+      "code_cpp": "#include <iostream>\n#include <algorithm>\n#include <queue>\n#include <cstring>\n\nusing namespace std;\n\nconst int N=1e5+10;\nint n,m;\nint head[N],edge[N],nextVertex[N],idx; //邻接表\nint q[N],d[N]; //队列、入度\n\nvoid add(int a,int b){\n    edge[idx]=b;\n    nextVertex[idx]=head[a];\n    head[a]=idx++;\n}\n\nbool topsort(){\n    int qHeadIdx=0,qTailIdx=-1; //队首、队尾指针\n    //将入度为0的点入队\n    for(int i=1;i<=n;i++)\n        if(!d[i]) \n            q[++qTailIdx]=i; \n            //入度为0的点入队\n    while(qHeadIdx<=qTailIdx){  //队列不为空\n        int t=q[qHeadIdx++]; //取出队首元素\n        //遍历t的所有邻边\n        for(int i=head[t];i!=-1;i=nextVertex[i]){\n            int j=edge[i];\n            d[j]--; //入度-1\n            if(!d[j]) //如果入度为0，则入队\n                q[++qTailIdx]=j; \n        }\n    }\n    return qTailIdx==n-1; \n    //判断是否所有点都被访问\n}\n \nint main(){\n    cin>>n>>m;\n    idx=0;\n    memset(head,-1,sizeof head); \n    //初始Head数组指向-1顶点\n\n    for(int i=0;i<m;i++){\n        int a,b;\n        cin>>a>>b;\n        add(a,b); //建边\n        d[b]++;   //入度+1\n    }\n    if(topsort()){\n        for(int i=0;i<n;i++) cout<<q[i]<<\" \"; \n        //输出拓扑排序结果\n    }\n    else cout<<\"-1\"; //无法拓扑排序，输出-1\n    cout<<endl;\n    return 0;\n}",
+      "explanation_python": "",
+      "code_python": "",
+      "id": 62,
+      "createdAt": "2026-07-09T09:05:47.223Z"
+    },
+    {
+      "title": "最省路径",
+      "tags": [
+        "广搜BFS",
+        "精选题库",
+        "图论"
+      ],
+      "difficulty": "高",
+      "source": "XMUOJ | 2026年程序设计实践例题(05李胜睿班)",
+      "original_problem": "## 描述\n\n为了让自己能够驾驭大师摩托，打开了大师摩托的隐藏任务：“赛车试炼”。\n\n然而这个特殊的赛车试炼，竟然比的不是车速，比的是如何“省”油钱。\n\n林克需要驾驶不同邮箱容量各异的赛车，从起点城市S开到终点城市E。\n\n有N个城市（编号0、1…N-1）和M条赛道(构成一张无向图)。\n\n在每个城市里边都有一个加油站，不同的加油站的单位油价不一样(有些城市油价贵，有些城市油价便宜些)。\n\n请计算，如果林克驾驶的是一辆油箱容量为C的赛车，那么他从起点城市S开到终点城市E至少要花多少油钱？\n\n注意：车子初始时油箱是空的，需要在起点城市加油方可起行。\n\n\n## 输入\n\n第一行包含两个整数N和M。\n\n第二行包含N个整数，代表N个城市的单位油价，第i个数即为第i个城市的油价Pi。\n\n接下来M行，每行包括三个整数u,v,d，表示城市u与城市v之间存在道路，且赛车从u到v需要消耗的油量为d。\n\n接下来一行包含一个整数q，代表问题数量（q<100)\n\n接下来q行，每行包含三个整数C、S、E，分别表示赛车油箱容量、起点城市S、终点城市E。\n\n数据范围：\n1<=N<=1000,\n1<=M<=10000,\n1<=pi<=100,\n1<=d<=100,\n1<=C<=100\n\n## 输出\n\n对于每个问题，输出一个整数，表示所需的最少油钱。\n\n如果无法从起点城市开到终点城市，则输出”impossible”。\n\n每个结果占一行。\n\n\n## 输入样例 1 \n\n5 5\n10 10 20 12 13\n0 1 9\n0 2 8\n1 2 1\n1 3 11\n2 3 7\n2\n10 0 3\n20 1 4\n## 输出样例 1\n\n170\nimpossible",
+      "explanation_cpp": "## 题目大意\n\n给定一张 N 个点 M 条边的无向图，每个点有一个油价 price[i]，每条边有一个耗油量 d。\n有若干组询问，每组给出油箱容量 C、起点 S、终点 E，初始油箱为空，求从 S 到 E 的最小加油花费，若无法到达输出 impossible。\n\n数据范围：\n\nN ≤ 1000，M ≤ 10000\n\n油价、耗油量、油箱容量均 ≤ 100\n\n询问数 q < 100\n\n## 解题思路\n\n此题是带油量约束的最短路问题，状态不仅包含城市，还包含当前剩余油量。因为油箱容量很小（≤ 100），我们可以将状态定义为 (城市, 剩余油量)，然后使用 Dijkstra 算法求最小花费。\n\n**状态设计**\ncost[city][fuel]：到达城市 city 且油箱剩余 fuel 升时的最小花费。\n\nvis[city][fuel]：该状态是否已从优先队列中取出（即已确定最短路）。\n\n**状态转移**\n对于当前状态 (u, f, money)（当前城市 u，剩余油量 f，已花费 money），有两种操作：\n\n- 加油\n在当前城市购买 1 升 油（一次只加 1 升，因为容量小且油价固定，逐步加等价于任意加），如果 f + 1 <= C 且新状态花费更小，则更新并加入队列。\n\n为什么一次只加 1 升？因为油价固定，加多升可以通过重复此操作实现，且 Dijkstra 每次只扩展一步，保证正确性。\n\n- 沿边走\n遍历所有邻接边 (u, v, d)，如果当前油量 f >= d，则可以走到 v，新油量为 f - d，花费不变。若新状态更优则更新。\n\n终止条件：当从优先队列中取出状态 (E, f) 时，money 即为最小花费（因为优先队列按花费升序，第一次弹出终点时一定是最优）。\n\n**为什么用 Dijkstra**\n状态的转移边权（加油的边权为油价，行驶的边权为 0）均为非负，符合 Dijkstra 的使用条件。\n我们可以将每个状态看作图上的一个节点，加油操作产生正权边，行驶操作产生零权边。\n\n## 代码实现细节\n**图的存储**\n使用链式前向星（邻接表）存储无向图。\n注意：输入边数应为 M，但原代码中误写为 for(int i=0;i<n;i++)，应改为 for(int i=0;i<m;i++)。\n\n**优先队列**\n自定义结构体 Node，包含 city, fuel, money，重载 < 运算符使优先队列按 money 从小到大出队（小根堆）。\n\n**剪枝与优化**\n每次只加 1 升油，确保状态空间可控。\n\n使用 vis 数组避免重复扩展已确定最短路径的状态。\n\n初始状态 (S, 0, 0)，空油箱。\n\n**边界情况**\n若起点与终点相同，花费为 0（代码中会立即返回，因为初始状态入队后弹出，判断 city == target 返回 0）。\n\n若无法到达，返回 -1，输出 impossible。\n\n## 复杂度分析\n状态总数：N * (C+1) ≤ 1000 * 101 ≈ 1e5\n\n每个状态最多扩展：加油（1 次）+ 度数条边，总边数 M=1e4，故总转移次数约 O(M * C)。\n\n每次 Dijkstra 复杂度 O(N*C * log(N*C))，对于 q<100 完全可行。",
+      "code_cpp": "#include <cstring>\n#include <iostream>\n#include <algorithm>\n#include <queue>\n\nusing namespace std;\n\nconst int N=1010;\nconst int M=10010;\nconst int maxCapacity=105;\n\nint oilPrice[N],cost[N][maxCapacity];\nint head[N],Next[2*M],ver[2*M];\nint Dist[2*M],tot=-1; \n//邻接表存储图\n\nbool vis[N][maxCapacity]; //标记是否访问过\n\nvoid add(int x,int y,int z){\n    ver[++tot]=y; //存储边的终点\n    Next[tot]=head[x];  //存储下一条边的索引\n    head[x]=tot; //更新头结点\n    Dist[tot]=z; //存储边的权值\n}\n\nstruct Node{\n    int city,fuel,money; //城市、油量、花费\n    Node(int x,int y,int z):city(x),fuel(y),money(z){} ;\n    Node():city(0),fuel(0),money(0){} ;\n    friend bool operator < (Node a,Node b){\n        return a.money>b.money; //优先队列按花费升序排列,小根堆。\n    }\n};\npriority_queue<Node> q;\n\nbool buyOneOil(int city,int fuel,int c){\n    if(fuel+1<=c&&!vis[city][fuel+1]&&\n    cost[city][fuel+1]>cost[city][fuel]+oilPrice[city]){\n        return true;\n    }\n    else return false;\n}\n\nbool isNectRoad(int fuel,int city,int d,int money){\n    //如果油还在油箱限制内，且这条路没有被访问过，且花费更少，则可以走这条路\n    if(fuel>=d&&!vis[city][fuel-d]&&\n    cost[city][fuel-d]>money)\n        return true;\n    else return false;\n}\n\nint n,m;\n\n//Dijkstra算法求最短路\nint bfs(int currentCapacity,int start,int target){\n    while(!q.empty()) \n        q.pop(); //清空队列\n    memset(vis,0,sizeof(vis)); //清空访问标记\n    memset(cost,0x3f,sizeof(cost)); //初始化花费为无穷大\n    cost[start][0]=0; //起点花费为0\n    q.push(Node(start,0,0)); //将起点加入队列\n\n    while(!q.empty()){\n        Node now=q.top();   //取出队首元素\n        q.pop();            //弹出队首元素\n        int city=now.city,\n        fuel=now.fuel,\n        money=now.money;\n\n        vis[city][fuel]=true;           //标记为已访问\n        if(city==target) \n            return money;  //如果到达终点，则返回花费\n        if(buyOneOil(city,fuel,currentCapacity))\n        {\n            cost[city][fuel+1]=cost[city][fuel]+oilPrice[city]; \n            //更新花费\n            q.push(Node(city,fuel+1,cost[city][fuel+1])); \n            //将新状态加入队列\n        }\n\n        //遍历所有邻接城市\n        for(int i=head[city];i;i=Next[i])\n        {\n            int nextCity=ver[i],d=Dist[i];  //此路径消耗油量d\n            if(isNectRoad(fuel,nextCity,d,money)){\n                cost[nextCity][fuel-d]=money; //更新花费\n                q.push(Node(nextCity,fuel-d,money)); //将新状态加入队列\n            }\n        }\n    }\n    return -1;\n}\n\nint main()\n{\n\n    cin>>n>>m;\n\n    //代表每个城市的油价\n    for(int i=0;i<n;i++)\n        cin>>oilPrice[i];\n\n    for(int i=0;i<n;i++){\n        int u,v,d;\n        cin>>u>>v>>d;\n        add(u,v,d);   //无向图(u,v)\n        add(v,u,d);   //无向图(v,u)\n    }\n\n    //整数q表示询问的次数\n    int q;\n    cin>>q;\n    while(q--){\n        int c,s,e;\n        cin>>c>>s>>e;\n        int ans=bfs(c,s,e);\n        if(ans==-1) cout<<\"impossible\"<<endl;\n        else cout<<ans<<endl;\n    }\n    return 0;\n}",
+      "explanation_python": "",
+      "code_python": "",
+      "id": 63,
+      "createdAt": "2026-07-09T12:35:40.321Z"
+    },
+    {
+      "title": "数字三角形",
+      "tags": [
+        "动态规划"
+      ],
+      "difficulty": "中",
+      "source": "XMUOJ | 2026年程序设计实践例题(05李胜睿班)",
+      "original_problem": "## 描述\n\n数字三角形是动态规划的入门题，小鲁如果要入门动态规划，这道题是不可不做的：\n\n7\n3   8\n8   1   0\n2   7   4   4\n4   5   2   6   5\n\n图1给出了一个数字三角形。从三角形的顶部到底部有很多条不同的路径。对于每条路径，把路径上面的数加起来可以得到一个和，你的任务就是找到最大的和。\n\n注意：路径上的每一步只能从一个数走到正下方和右下方的位置。\n\n\n## 输入\n\n输入的是一行是一个整数N (1 < N <= 1000)，给出三角形的行数。下面的N行给出数字三角形。数字三角形上的数的范围都在0和100之间。\n\n\n## 输出\n\n输出最大的和。\n\n\n## 输入样例 1 \n\n5\n7\n3 8\n8 1 0 \n2 7 4 4\n4 5 2 6 5\n## 输出样例 1\n\n30",
+      "explanation_cpp": "## 解题思路\n\n这是一道经典的动态规划入门题。路径只能向下或向右下移动，因此到达某一格子的路径一定是从其左上（正上方）或正上方（左上方）的格子过来的。我们可以自底向上或者自顶向下地计算从当前格子出发能获得的最大和。\n\n**状态定义**\n用 f[i][j] 表示从第 i 行第 j 列（行列均从 1 开始）出发，到达底部的最大路径和。\n则最终答案为 f[1][1]。\n\n**转移方程**\n对于第 i 行第 j 列，它只能走到下一行的同一列 (i+1, j) 或下一行的右一列 (i+1, j+1)。因此：\n\nf[i][j] = a[i][j] + max(f[i+1][j], f[i+1][j+1])\n边界：最后一行 f[N][j] = a[N][j]。\n\n根据这个方程，我们可以采用三种实现方式：记忆化搜索、递推二维数组、空间优化的一维数组。\n\n## 方法一：记忆化搜索（自顶向下递归）\n\n递归函数 solve(i, j) 返回从 (i, j) 出发的最大和。为了避免重复计算子问题，使用一个数组 d[i][j] 记录已经计算过的结果。初始化为 -1，因为数字均为非负，所以 -1 表示尚未计算。\n\n**代码实现**\n\n```cpp\n#include <iostream>\n#include <cstring>\nusing namespace std;\n\nconst int N = 1010;\nint n;\nint a[N][N];    // 存储三角形数字\nint dp[N][N];   // 记忆化数组，-1表示未计算\n\nint solve(int i, int j) {\n    if (dp[i][j] >= 0) return dp[i][j];   // 已计算，直接返回\n    if (i == n) return dp[i][j] = a[i][j]; // 最后一行\n    return dp[i][j] = a[i][j] + max(solve(i+1, j), solve(i+1, j+1));\n}\n\nint main() {\n    memset(dp, -1, sizeof(dp));\n    cin >> n;\n    for (int i = 1; i <= n; i++)\n        for (int j = 1; j <= i; j++)\n            cin >> a[i][j];\n    cout << solve(1, 1) << endl;\n    return 0;\n}```\n**复杂度**\n\n时间复杂度：每个状态只计算一次，状态数为 O(N^2)，转移为 O(1)，总 O(N^2)。\n\n空间复杂度：O(N^2)。\n\n注意：递归深度为 N，当 N 达到 1000 时可能造成栈溢出，实际中可考虑增大栈空间或改用迭代，但作为入门题目通常可以接受。\n\n## 方法二：递推（自底向上二维数组）\n\n我们直接从最后一行开始，逐行向上计算。这样不需要递归，也不存在重复计算问题。用二维数组 dp 存储每个状态。\n\n代码实现\n\n```cpp\n#include <iostream>\n#include <algorithm>\nusing namespace std;\n\nconst int N = 1010;\nint a[N][N], dp[N][N];\n\nint solve(int n) {\n    // 初始化最后一行\n    for (int i = 1; i <= n; i++)\n        dp[n][i] = a[n][i];\n    // 从倒数第二行向上递推\n    for (int i = n - 1; i >= 1; i--) {\n        for (int j = 1; j <= i; j++) {\n            dp[i][j] = a[i][j] + max(dp[i+1][j], dp[i+1][j+1]);\n        }\n    }\n    return dp[1][1];\n}\n\nint main() {\n    cin >> n;\n    for (int i = 1; i <= n; i++)\n        for (int j = 1; j <= i; j++)\n            cin >> a[i][j];\n    cout << solve(n) << endl;\n    return 0;\n}```\n**复杂度**\n时间 O(N^2)，空间 O(N^2)。\n\n## 方法三：滚动数组（一维空间优化）\n观察递推式 dp[i][j] 只依赖于下一行 dp[i+1][j] 和 dp[i+1][j+1]，因此我们可以只用一个一维数组 f[j] 来保存当前行的值，循环更新。初始时 f[j] = a[N][j]（最后一行），然后从倒数第二行向上更新，每更新一行，f 就变成当前行的结果，供上一行使用。\n\n**代码实现**\n\n```cpp\n#include <iostream>\n#include <algorithm>\nusing namespace std;\n\nconst int N = 1010;\nint a[N][N], f[N];\n\nint solve2(int n) {\n    // 初始化 f 为最后一行\n    for (int i = 1; i <= n; i++)\n        f[i] = a[n][i];\n    // 从倒数第二行向上递推\n    for (int i = n - 1; i >= 1; i--) {\n        for (int j = 1; j <= i; j++) {\n            f[j] = a[i][j] + max(f[j], f[j+1]);\n        }\n    }\n    return f[1];\n}\n\nint main() {\n    cin >> n;\n    for (int i = 1; i <= n; i++)\n        for (int j = 1; j <= i; j++)\n            cin >> a[i][j];\n    cout << solve2(n) << endl;\n    return 0;\n}```\n**复杂度**\n时间 O(N^2)，空间 O(N)，在大数据规模下更优。",
+      "code_cpp": "#include <iostream>\n#include <algorithm>\nusing namespace std;\n\nconst int N = 1010;\nint a[N][N], f[N];\n\nint solve2(int n) {\n    // 初始化 f 为最后一行\n    for (int i = 1; i <= n; i++)\n        f[i] = a[n][i];\n    // 从倒数第二行向上递推\n    for (int i = n - 1; i >= 1; i--) {\n        for (int j = 1; j <= i; j++) {\n            f[j] = a[i][j] + max(f[j], f[j+1]);\n        }\n    }\n    return f[1];\n}\n\nint main() {\n    cin >> n;\n    for (int i = 1; i <= n; i++)\n        for (int j = 1; j <= i; j++)\n            cin >> a[i][j];\n    cout << solve2(n) << endl;\n    return 0;\n}",
+      "explanation_python": "",
+      "code_python": "",
+      "id": 64,
+      "createdAt": "2026-07-10T02:47:23.794Z"
+    },
+    {
+      "title": "01背包问题",
+      "tags": [
+        "动态规划",
+        "背包问题",
+        "精选题库"
+      ],
+      "difficulty": "中",
+      "source": "XMUOJ | 2026年程序设计实践例题(05李胜睿班)",
+      "original_problem": "## 问题描述\n\n有 N 件物品和一个容量为 V 的背包。每件物品只能使用一次。\n第 i 件物品的体积是 v[i]，价值是 w[i]。\n求解将哪些物品装入背包，可使这些物品的总体积不超过背包容量，且总价值最大。输出最大价值。\n## 输入样例 1 \n\n4 5\n1 2\n2 4\n3 4\n4 5\n## 输出样例 1\n\n8\n## 输入样例 2 \n\n16 24\n30 34\n78 40\n96 97\n2 38\n59 57\n10 48\n28 65\n40 17\n95 84\n17 5\n80 83\n74 32\n37 28\n44 36\n25 14\n95 29\n## 输出样例 2\n\n86",
+      "explanation_cpp": "## 算法思路\n\n这是最基础的背包问题，每种物品只有选或不选两种状态，因此称为“01背包”。\n我们采用动态规划（DP）来解决，关键思想是“依次考虑每件物品，并记录当前容量下的最优价值”。\n\n**状态定义**\n设 dp[i][j] 表示：**只考虑前 i 件物品，背包容量为 j 时，能获得的最大价值。**\n\n**状态转移方程**\n对于第 i 件物品，有两种决策：\n\n不选：则最大价值等于 dp[i-1][j]（即前 i-1 件物品在容量 j 下的最优解）。\n\n选：若容量 j ≥ v[i]，则可以先放入该物品，剩余容量 j - v[i] 用于前 i-1 件物品，总价值为 dp[i-1][j - v[i]] + w[i]。\n\n因此转移方程为：\n\n```\ndp[i][j] = max(dp[i-1][j], dp[i-1][j - v[i]] + w[i])   (当 j ≥ v[i] 时)\ndp[i][j] = dp[i-1][j]                                 (当 j < v[i] 时)```\n**初始化**\ndp[0][j] = 0，即没有物品时任何容量下价值都为0。\n\n## 空间优化（一维数组）\n\n观察转移方程，dp[i][j] 只依赖于 dp[i-1][...]，即上一行的数据。\n因此我们可以只用一维数组 dp[j] 表示容量 j 时的最大价值，但在更新时必须逆序遍历容量（从 V 到 v[i]），以保证每个物品只被选一次（因为正序会允许重复选择）。\n\n优化后的转移：\n\n```text\nfor i = 1..N:\n    for j = V down to v[i]:\n        dp[j] = max(dp[j], dp[j - v[i]] + w[i])```\n逆序确保 dp[j - v[i]] 是上一轮（即未考虑第 i 件物品）的状态。\n\n## 复杂度分析\n时间复杂度：O(N * V)，双重循环。\n\n空间复杂度：优化后为 O(V)，若用二维数组则为 O(N * V)。",
+      "code_cpp": "#include <iostream>\n#include <cstring>\nusing namespace std;\n\nconst int MAXN=1010;\nint f[MAXN];\n//f[j]表示容量为j的背包所能装的最大价值\nint w[MAXN],v[MAXN];\nint N,V;\n\nint main(){\n    cin>>N>>V;\n    for(int i=1;i<=N;i++)\n        cin>>v[i]>>w[i];\n    for(int i=1;i<=N;i++){\n        //从后往前遍历，保证每个物品只被放入一次\n        for(int j=V;j>=v[i];j--)\n            f[j]=max(f[j],(f[j-v[i]]+w[i]));\n    }\n    cout<<f[V]<<endl;\n    return 0;\n}",
+      "explanation_python": "",
+      "code_python": "",
+      "id": 65,
+      "createdAt": "2026-07-13T01:35:19.147Z",
+      "updatedAt": "2026-07-13T02:21:00.217Z"
+    },
+    {
+      "title": "完全背包",
+      "tags": [
+        "背包问题",
+        "动态规划",
+        "精选题库"
+      ],
+      "difficulty": "中",
+      "source": "XMUOJ | 2026年程序设计实践例题(05李胜睿班)",
+      "original_problem": "## 描述\n\n搞定了01背包问题，林克继续挑战完全背包问题：\n\n有N种物品和一个容量是V的背包，每种物品都有无限件可用。\n\n第i种物品的体积是vi，价值是wi。\n\n求解将哪些物品装入背包，可使这些物品的总体积不超过背包容量，且总价值最大。\n输出最大价值。\n\n数据范围\n\n0<N,V≤1000\n0<vi,wi≤1000\n\n## 输入\n\n第一行两个整数，N，V，用空格隔开，分别表示物品种数和背包容积。\n\n接下来有N行，每行两个整数vi,wi，用空格隔开，分别表示第i种物品的体积和价值。\n\n\n## 输出\n\n输出一个整数，表示最大价值。\n\n\n## 输入样例 1 \n\n7 884\n6148 6786\n8500 8620\n6136 6930\n8700 6732\n409 3388\n9925 642\n4324 5208\n## 输出样例 1\n\n6776",
+      "explanation_cpp": "## 完全背包问题题解\n\n### 问题描述\n\n有 N 种物品和一个容量为 V 的背包。**每种物品都有无限件可用**。  \n第 i 种物品的体积是 `v[i]`，价值是 `w[i]`。  \n求解将哪些物品装入背包，可使这些物品的总体积不超过背包容量，且总价值最大。输出最大价值。\n\n### 算法思路\n\n完全背包与 01 背包的唯一区别是：每种物品可以选 **0 次或多次**（无数量限制）。  \n因此，对于第 i 种物品，决策不是简单的“选/不选”，而是“选 0 个、1 个、2 个、... 直到容量放不下为止”。  \n我们可以用动态规划（DP）来解决，并且可以优化到 O(N*V) 时间，O(V) 空间。\n\n#### 状态定义\n\n同 01 背包，设 `dp[i][j]` 表示：**只考虑前 i 种物品，背包容量为 j 时，能获得的最大价值**。\n\n#### 状态转移方程（朴素版）\n\n对于第 i 种物品，枚举选择数量 k（0 ≤ k ≤ j/v[i]），则：\n```\ndp[i][j] = max(dp[i-1][j - k*v[i]] + k*w[i])   (0 ≤ k ≤ j/v[i])\n```\n这个复杂度为 O(N * V * (V/v[i]))，最坏情况 O(N*V²)，不可接受。\n\n#### 优化转移（基于完全背包特点）\n\n完全背包的转移可以写成：\n```\ndp[i][j] = max(dp[i-1][j], dp[i][j - v[i]] + w[i])\n```\n理解：  \n- 不选第 i 种：`dp[i-1][j]`  \n- 至少选一个第 i 种：先放一个第 i 种，剩余容量 `j - v[i]` 可以继续用前 i 种物品（包括再选第 i 种），所以是 `dp[i][j - v[i]] + w[i]`。\n\n这个转移利用了“当前层”的状态，因此当我们用一维数组时，容量循环需要**正序**（从小到大），因为 `dp[j - v[i]]` 需要是已经更新过的（即已考虑过多个第 i 种物品）。\n\n#### 空间优化（一维数组）\n\n```\nfor i = 1..N:\n    for j = v[i]..V:   // 正序\n        dp[j] = max(dp[j], dp[j - v[i]] + w[i])\n```\n正序循环允许同一个物品被反复叠加，这正是无限次选择的效果。\n\n#### 与 01 背包的对比\n\n| 背包类型 | 容量遍历顺序 | 原因 |\n| 01 背包 | 逆序（从 V 到 v[i]） | 防止重复选择同一种物品 |\n| 完全背包 | 正序（从 v[i] 到 V） | 允许同种物品无限次叠加 |\n\n### 复杂度分析\n\n- **时间复杂度**：`O(N * V)`，与 01 背包相同。\n- **空间复杂度**：优化后为 `O(V)`。\n\n\n### 注意事项\n\n- **初始化**：题目要求“不超过容量”，全初始化为 0 即可；若要求“恰好装满”，则 `dp[0]=0`，其余 `-INF`。\n- **循环顺序**：务必正序，否则退化为 01 背包。\n- **数据范围**：N 和 V 较大时（如 10⁵），O(N*V) 可能超时，但完全背包算法已经最优；若还需优化，可考虑贪心性质（如物品价值与体积比）的剪枝，但一般题目会在可接受范围内。",
+      "code_cpp": "#include <iostream>\n#include <cstring>\nusing namespace std;\n\nconst int MAXN=1010;\nint f[MAXN];\n//f[j]表示容量为j的背包所能装的最大价值\nint w[MAXN],v[MAXN];\nint N,V;\n\nint main(){\n    cin>>N>>V;\n    for(int i=1;i<=N;i++)\n        cin>>v[i]>>w[i];\n    for(int i=1;i<=N;i++){\n        //从前往后遍历，保证每个物品可以被放入多次\n        for(int j=v[i];j<=V;j++)\n            f[j]=max(f[j],(f[j-v[i]]+w[i]));\n    }\n    cout<<f[V]<<endl;\n    return 0;\n}",
+      "explanation_python": "",
+      "code_python": "",
+      "id": 66,
+      "createdAt": "2026-07-13T01:44:07.351Z",
+      "updatedAt": "2026-07-13T02:21:20.189Z"
+    },
+    {
+      "title": "多重背包(朴素版)",
+      "tags": [
+        "背包问题",
+        "动态规划",
+        "精选题库"
+      ],
+      "difficulty": "中",
+      "source": "XMUOJ | 2026年程序设计实践例题(05李胜睿班)",
+      "original_problem": "## 描述\n\n有N种物品和一个容量是V的背包。\n\n第i种物品最多有si件，每件体积是vi，价值是wi。\n\n求解将哪些物品装入背包，可使物品体积总和不超过背包容量，且价值总和最大。\n输出最大价值。\n\n### 数据范围\n\n0<N,V≤100\n0<vi,wi,si≤100\n\n\n## 输入\n\n第一行两个整数，N，V，用空格隔开，分别表示物品种数和背包容积。\n\n接下来有N行，每行三个整数vi,wi,si，用空格隔开，分别表示第i种物品的体积、价值和数量。\n\n\n## 输出\n\n输出一个整数，表示最大价值。\n\n\n## 输入样例 1 \n\n4 5\n1 2 3\n2 4 1\n3 4 3\n4 5 2\n## 输出样例 1\n\n10",
+      "explanation_cpp": "## 算法思路\n多重背包介于 01 背包（每种 1 件）和完全背包（每种无限件）之间。直接枚举每件物品的选择数量会非常慢，因此一般需要优化。\n\n## 方法一：朴素枚举\n对于每种物品，枚举取 k 件（0 ≤ k ≤ s[i]），转移方程为：\n\n```text\ndp[j] = max(dp[j], dp[j - k*v[i]] + k*w[i])\n时间复杂度 O(V * ∑ s[i])，当 s[i] 很大时会超时。```",
+      "code_cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n\n\tint N, V;\n\tcin >> N >> V;\n\n\tvector<int> dp(V + 1, 0);\n\tfor (int i = 0; i < N; ++i) {\n\t\tint v, w, s;\n\t\tcin >> v >> w >> s;\n\t\tfor (int j = V; j >= 0; --j) {\n\t\t\tfor (int k = 1; k <= s && k * v <= j; ++k) {\n\t\t\t\tdp[j] = max(dp[j], dp[j - k * v] + k * w);\n\t\t\t}\n\t\t}\n\t}\n\n\tcout << dp[V] << '\\n';\n\treturn 0;\n}",
+      "explanation_python": "",
+      "code_python": "",
+      "id": 67,
+      "createdAt": "2026-07-13T01:51:04.664Z",
+      "updatedAt": "2026-07-13T02:21:34.056Z"
+    },
+    {
+      "title": "多重背包(2进制优化)",
+      "tags": [
+        "二进制",
+        "动态规划",
+        "背包问题",
+        "精选题库"
+      ],
+      "difficulty": "高",
+      "source": "XMUOJ | 2026年程序设计实践例题(05李胜睿班)",
+      "original_problem": "## 描述\n\n有N种物品和一个容量是V的背包。\n\n第i种物品最多有si件，每件体积是vivi，价值是wi。\n\n求解将哪些物品装入背包，可使物品体积总和不超过背包容量，且价值总和最大。\n输出最大价值。\n\n**数据范围**\n0<N<=1000\n0<V<=2000\n0<vi,wi,si<=2000\n**提示：**\n本题考查多重背包的二进制优化方法。\n\n\n## 输入\n\n第一行两个整数，N，V，用空格隔开，分别表示物品种数和背包容积。\n\n接下来有N行，每行三个整数vi,wi,si，用空格隔开，分别表示第i种物品的体积、价值和数量。\n\n\n## 输出\n\n输出一个整数，表示最大价值。\n\n\n## 输入样例 1 \n\n4 5\n1 2 3\n2 4 1\n3 4 3\n4 5 2\n## 输出样例 1\n\n10",
+      "explanation_cpp": "## 方法二：二进制拆分优化\n\n将每种物品的 s[i] 件拆分成若干个“新物品”，使这些新物品能够组合出 0 到 s[i] 之间的任意整数件原物品，且每个新物品只选一次（即转化为 01 背包）。\n\n### 拆分原理：\n\n将 s 拆分为 1, 2, 4, 8, ... 以及最后的余数。例如 s = 13，拆成 1, 2, 4, 6（因为 1+2+4=7，剩余 6，可覆盖 0~13）。\n每个新物品具有体积 = k * v[i]，价值 = k * w[i]。\n拆分后，所有新物品做 01 背包，就能等价于原多重背包。\n\n**证明**：任意整数 x (0 ≤ x ≤ s) 都可以由这些数中的一部分相加得到（二进制表示），因此所有可能的取法都被覆盖。\n\n**复杂度**：每种物品拆成 O(log s[i]) 个，总物品数 O(∑ log s[i])，整体复杂度 O(V * ∑ log s[i])，远优于朴素。\n\n\n## 状态定义与转移\n\n采用一维 DP 数组 dp[j] 表示容量为 j 时的最大价值。\n对于每个拆分出的新物品（体积 w，价值 val），按 01 背包方式逆序更新：\n\n```text\nfor j = V down to w:\n    dp[j] = max(dp[j], dp[j - w] + val)```",
+      "code_cpp": "#include <iostream>\n#include <vector>\nusing namespace std;\n\nstruct Good {\n    int w; // 重量\n    int v; // 价值\n};\n\nint main() {\n    int N, V;\n    cin >> N >> V;\n    vector<Good> goods;\n\n    // 1. 二进制拆分阶段\n    for (int i = 0; i < N; i++) {\n        int v, w, s; // 体积，价值，数量\n        cin >> v >> w >> s;\n\n        for (int k = 1; k <= s; k *= 2) {\n            s -= k;\n            goods.push_back({k * v, k * w}); // 打包成新物品\n        }\n        if (s > 0) {\n            goods.push_back({s * v, s * w}); // 剩余部分打包\n        }\n    }\n\n    // 2. 0/1 背包 DP 阶段（一维滚动数组，容量必须倒序遍历）\n    vector<int> dp(V + 1, 0);\n    for (auto good : goods) {\n        for (int j = V; j >= good.w; j--) {\n            dp[j] = max(dp[j], dp[j - good.w] + good.v);\n        }\n    }\n\n    cout << dp[V] << endl;\n    return 0;\n}",
+      "explanation_python": "",
+      "code_python": "",
+      "id": 68,
+      "createdAt": "2026-07-13T01:57:38.253Z",
+      "updatedAt": "2026-07-13T02:23:13.886Z"
+    },
+    {
+      "title": "分组背包问题",
+      "tags": [
+        "动态规划",
+        "背包问题",
+        "精选题库"
+      ],
+      "difficulty": "中",
+      "source": "XMUOJ | 2026年程序设计实践例题(05李胜睿班)",
+      "original_problem": "## 描述\n\n\n有N组物品和一个容量是V的背包。\n\n每组物品有若干个，同一组内的物品最多只能选一个。\n每件物品的体积是vij，价值是wij，其中i是组号，j是组内编号。\n\n求解将哪些物品装入背包，可使物品总体积不超过背包容量，且总价值最大。\n\n输出最大价值。\n\n\n\n输入\n\n第一行有两个整数N，V用空格隔开，分别表示物品组数和背包容量。\n\n接下来有N组数据：\n每组数据第一行有一个整数Si，表示第i个物品组的物品数量；\n每组数据接下来有Si行，每行有两个正整数vij，wij，用空格隔开，分别表示第i个物品组的第j个物品的体积和价值；\n\n\n## 输出\n\n输出一个整数，表示最大价值。\n\n\n## 输入样例 1 \n\n3 5\n2\n1 2\n2 4\n1\n3 4\n1\n4 5\n## 输出样例 1\n\n8",
+      "explanation_cpp": "分组背包（Group Knapsack）是背包问题中的一个经典变种，它的核心规则是：**物品被分成若干组，每一组内的物品互相冲突，你最多只能选择其中一个**放入背包。\n\n下面是详细的问题解析、状态转移方程和代码模板。\n\n### 1. 问题描述\n\n有 `N` 组物品和一个容量为 `V` 的背包。\n*   第 `i` 组有 `s[i]` 个物品。\n*   该组第 `k` 个物品的体积为 `v[i][k]`，价值为 `w[i][k]`。\n\n**目标**：选择一些物品放入背包，使得总重量不超过 `V`，且总价值最大。\n\n**约束条件**：**每一组内，最多只能选一个物品**（也可以一个都不选）。\n\n### 2. 核心思想：状态定义与转移\n\n我们可以把“每一组”看作一个大物品，然后对这个大物品做“选”或“不选”的决策。\n\n*   **状态定义**：\n    定义 `dp[i][j]` 为：**只考虑前 `i` 组**物品，在背包容量为 `j` 时，能获得的最大价值。\n\n*   **状态转移方程**：\n    对于第 `i` 组，我们需要在“不选”和“选组内的某一个物品”之间取最大值。\n\n    `dp[i][j] = max( dp[i-1][j],  max_{1 <= k <= s[i]}(dp[i-1][j - v[i][k]] + w[i][k]) )`\n\n    *   `dp[i-1][j]`：不选第 `i` 组的任何物品。\n    *   `dp[i-1][j - v[i][k]] + w[i][k]`：选择第 `i` 组的第 `k` 个物品。\n\n### 3. 代码实现\n\n与0/1背包类似，分组背包也可以将二维DP优化为一维，但**遍历容量的循环必须从大到小（逆序）**，以确保每个物品只被考虑一次。\n\n#### C++ 模板（一维优化版）\n\n```cpp\n#include <iostream>\n#include <algorithm>\nusing namespace std;\n\nconst int N = 110; // 根据题目数据范围调整\nint n, m; // n: 组数, m: 背包容量\nint v[N][N], w[N][N], s[N]; // v: 体积, w: 价值, s: 每组物品数量\nint dp[N];\n\nint main() {\n    cin >> n >> m;\n    for (int i = 1; i <= n; i++) {\n        cin >> s[i];\n        for (int j = 1; j <= s[i]; j++) {\n            cin >> v[i][j] >> w[i][j];\n        }\n    }\n\n    for (int i = 1; i <= n; i++) {          // 1. 遍历每一组\n        for (int j = m; j >= 0; j--) {      // 2. 逆序遍历容量\n            for (int k = 1; k <= s[i]; k++) { // 3. 遍历组内每个物品\n                if (j >= v[i][k]) {\n                    dp[j] = max(dp[j], dp[j - v[i][k]] + w[i][k]);\n                }\n            }\n        }\n    }\n\n    cout << dp[m] << endl;\n    return 0;\n}\n```\n\n#### 代码执行逻辑详解\n\n1.  **最外层循环 `for (int i = 1; i <= n; i++)`**：依次处理每个物品组。\n2.  **中层循环 `for (int j = m; j >= 0; j--)`**：**逆序**枚举背包容量。这是为了利用上一组（`i-1`）的DP结果，防止同组内多个物品被重复选择。\n3.  **最内层循环 `for (int k = 1; k <= s[i]; k++)`**：在容量 `j` 确定的情况下，尝试第 `i` 组内的每一个物品，并更新 `dp[j]`。\n\n### 4. 复杂度分析\n\n   **时间复杂度**：`O(N * V * S_avg)`，其中 `N` 是组数，`V` 是背包容量，`S_avg` 是每组物品的平均数量。\n   **空间复杂度**：`O(V)`，使用了一维DP数组。\n\n### 5. 与多重背包的区别（易混淆点）\n\n| 背包类型 | 核心区别 | 决策方式 |\n| **多重背包** | 同一组（类）物品有多个**相同的**副本，可以选 **0~C 个**。 | 选择几个**相同**的物品。 |\n| **分组背包** | 同一组内有多个**不同的**物品，**最多只能选 1 个**。 | 从一组中挑选**一个**最合适的，或不选。 |\n\n简单来说，多重背包是“同一种东西拿几个”，而分组背包是“同一类东西里挑哪个”。",
+      "code_cpp": "#include <iostream>\n#include <algorithm>\nusing namespace std;\n\nconst int N = 110; // 根据题目数据范围调整\nint n, m; // n: 组数, m: 背包容量\nint v[N][N], w[N][N], s[N]; // v: 体积, w: 价值, s: 每组物品数量\nint dp[N];\n\nint main() {\n    cin >> n >> m;\n    for (int i = 1; i <= n; i++) {\n        cin >> s[i];\n        for (int j = 1; j <= s[i]; j++) {\n            cin >> v[i][j] >> w[i][j];\n        }\n    }\n\n    for (int i = 1; i <= n; i++) {          // 1. 遍历每一组\n        for (int j = m; j >= 0; j--) {      // 2. 逆序遍历容量\n            for (int k = 1; k <= s[i]; k++) { // 3. 遍历组内每个物品\n                if (j >= v[i][k]) {\n                    dp[j] = max(dp[j], dp[j - v[i][k]] + w[i][k]);\n                }\n            }\n        }\n    }\n\n    cout << dp[m] << endl;\n    return 0;\n}",
+      "explanation_python": "",
+      "code_python": "",
+      "id": 69,
+      "createdAt": "2026-07-13T02:14:28.226Z",
+      "updatedAt": "2026-07-13T02:23:28.650Z"
+    },
+    {
+      "title": "混合背包问题",
+      "tags": [
+        "背包问题",
+        "动态规划",
+        "精选题库"
+      ],
+      "difficulty": "中",
+      "source": "XMUOJ | 2026年程序设计实践例题(05李胜睿班)",
+      "original_problem": "## 描述\n\n有 N 种物品和一个容量是 V 的背包。\n\n物品一共有三类：\n\n第一类物品只能用1次（01背包）；\n\n第二类物品可以用无限次（完全背包）；\n\n第三类物品最多只能用 si 次（多重背包）；\n\n每种体积是 vi，价值是 wi。\n\n求解将哪些物品装入背包，可使物品体积总和不超过背包容量，且价值总和最大。\n\n输出最大价值。\n\n\n## 输入\n\n第一行两个整数，N，V，用空格隔开，分别表示物品种数和背包容积。\n\n接下来有 N 行，每行三个整数 vi,wi,si，用空格隔开，分别表示第 i 种物品的体积、价值和数量。\n\nsi=−1 表示第 i 种物品只能用1次；\n\nsi=0 表示第 i 种物品可以用无限次；\n\nsi>0 表示第 i 种物品可以使用 si 次；\n\n\n## 输出\n\n输出一个整数，表示最大价值。\n\n\n## 输入样例 1 \n\n4 5\n1 2 -1\n2 4 1\n3 4 0\n4 5 2\n## 输出样例 1\n\n8",
+      "explanation_cpp": "## 解题思路\n\n混合背包本质上是将三种经典背包问题组合在一起。由于它们的状态定义和转移方程是统一的（都是 dp[j] 表示容量为 j 时的最大价值），我们只需要在遍历每种物品时，根据其类型采用对应的更新方式即可。\n\n### 1. 01 背包处理（si = -1）\n\n每个物品只能选或不选，使用 逆序 遍历容量，保证每个物品最多被选一次：\n\n```cpp\nfor (int j = V; j >= v; --j)\n    dp[j] = max(dp[j], dp[j - v] + w);```\n### 2. 完全背包处理（si = 0）\n\n每个物品可以选无限次，使用 正序 遍历容量，允许在同一物品上叠加选择：\n\n```cpp\nfor (int j = v; j <= V; ++j)\n    dp[j] = max(dp[j], dp[j - v] + w);```\n### 3. 多重背包处理（si > 0）\n\n每种物品最多选 si 次。直接枚举次数会超时，我们采用 二进制拆分优化 将其转化为若干个 01 背包物品。\n\n**二进制拆分原理**：\n将数量 si 拆分成若干个“新物品”，每个新物品由若干原物品组合而成，且这些新物品的组合可以拼出 [0, si] 中任意一个整数，从而替代原多重背包。拆分方式：\n\n```text\nk = 1\nwhile k <= si:\n    创建一个新物品（体积 = k * v, 价值 = k * w）\n    si -= k\n    k *= 2\nif si > 0:\n    创建一个新物品（体积 = si * v, 价值 = si * w）\n拆分后，每个新物品按 01 背包处理（逆序容量循环）。\n```\n**为什么这样拆分有效？**\n因为任意整数都可以表示成若干个 2 的幂次之和，最后加上剩余的余数，恰好能覆盖 0 到原数量之间的所有取值，且不会重复选取同一个拆分块。\n\n## 状态转移与实现细节\n使用一维数组 dp[0...V]，初始化 dp[0] = 0，其余为 0（因为题目只要求不超过容量，不要求恰好装满，所以可以初始化为 0）。\n\n对每个物品，根据 si 分别调用不同的更新逻辑。\n\n对于多重背包，我们可以在读入时直接将拆分的物品加入一个临时列表，也可以实时拆分后立即更新。为了代码简洁，我们可以创建一个 vector 存储所有拆分后的“01 物品”，然后统一用 01 背包处理，但完全背包无法合并，因为完全背包需要正序。因此更常见的做法是：遍历每个原始物品，根据类型直接更新 dp。\n\n## 复杂度分析\n\n**时间复杂度：**\n\n01 背包和完全背包均为 O(N*V)。\n\n多重背包经过二进制拆分后，每个物品被拆成 O(log si) 个，所以总复杂度为 O(V * ∑ log si)。最坏情况下仍可接受。\n\n**空间复杂度**：O(V)。",
+      "code_cpp": "#include <iostream>\n#include <vector>\n#include <algorithm>\nusing namespace std;\n\nconst int MAXV = 1005;  // 根据题目调整\n\nint main() {\n    int N, V;\n    cin >> N >> V;\n    vector<int> dp(V + 1, 0);\n\n    for (int i = 0; i < N; ++i) {\n        int v, w, s;\n        cin >> v >> w >> s;\n\n        if (s == -1) {\n            // 01背包：逆序\n            for (int j = V; j >= v; --j)\n                dp[j] = max(dp[j], dp[j - v] + w);\n        } \n        else if (s == 0) {\n            // 完全背包：正序\n            for (int j = v; j <= V; ++j)\n                dp[j] = max(dp[j], dp[j - v] + w);\n        } \n        else {\n            // 多重背包：二进制拆分，拆成若干01物品\n            int k = 1;\n            while (k <= s) {\n                int weight = k * v;\n                int value = k * w;\n                // 01背包更新\n                for (int j = V; j >= weight; --j)\n                    dp[j] = max(dp[j], dp[j - weight] + value);\n                s -= k;\n                k *= 2;\n            }\n            if (s > 0) // 处理剩余的物品\n            {\n                int weight = s * v;\n                int value = s * w;\n                for (int j = V; j >= weight; --j)\n                    dp[j] = max(dp[j], dp[j - weight] + value);\n            }\n        }\n    }\n\n    cout << dp[V] << endl;\n    return 0;\n}",
+      "explanation_python": "",
+      "code_python": "",
+      "id": 70,
+      "createdAt": "2026-07-13T02:20:07.384Z",
+      "updatedAt": "2026-07-13T02:23:44.128Z"
+    },
+    {
+      "title": "最长上升子序列",
+      "tags": [
+        "动态规划",
+        "精选题库"
+      ],
+      "difficulty": "中",
+      "source": "XMUOJ | 2026年程序设计实践例题(05李胜睿班)",
+      "original_problem": "## 描述\n\n给定一个长度为N的数列，求数值严格单调递增的子序列的长度最长是多少。\n\n**数据范围：**\n1<=N<=1000,\n-10^9<=数列中的数<=10^9\n\n\n## 输入\n\n第一行包含整数N。\n\n第二行包含N个整数，表示完整序列。\n\n\n## 输出\n\n输出一个整数，表示最大长度。\n\n\n## 输入样例 1 \n\n7\n3 1 2 1 8 5 6\n## 输出样例 1\n\n4",
+      "explanation_cpp": "## 问题描述\n\n给定一个长度为 N 的整数序列，求一个严格单调递增的子序列（不要求连续）的最大长度。\n例如：序列 3 1 2 1 8 5 6 的最长上升子序列为 1 2 5 6 或 1 2 8（但 1 2 5 6 长度为4），答案即为 4。\n\n## 解法一：动态规划（O(n²)）\n\n### 状态定义\n令 dp[i] 表示以第 i 个元素结尾的最长上升子序列的长度。\n\n### 转移方程\n对于每个 i，枚举所有 j < i，若 a[j] < a[i]，则 dp[i] = max(dp[i], dp[j] + 1)。\n初始时，每个元素单独作为一个子序列，dp[i] = 1。\n\n最终答案就是 max(dp[1..n])。\n\n### 复杂度\n时间：O(n²)，适用于 n ≤ 5000 左右。\n\n空间：O(n)。",
+      "code_cpp": "#include <iostream>\n#include <vector>\n#include <algorithm>\nusing namespace std;\n\nint main()\n{\n    int n;\n    cin>>n;\n    vector<long> a(n);\n    for(int i=0; i<n; i++) cin>>a[i];\n    \n    vector<long> dp(n, 1);\n    long ans = 1;\n    for(int i=0;i<n;i++){\n      for(int j=0;j<i;j++)\n      {\n        if(a[i]>a[j])\n        {\n          dp[i]=max(dp[i],dp[j]+1);\n        }\n      }\n      ans = max(ans, dp[i]);\n    }\n    cout<<ans<<endl;\n    return 0;\n}",
+      "explanation_python": "",
+      "code_python": "",
+      "id": 71,
+      "createdAt": "2026-07-13T02:28:24.458Z",
+      "updatedAt": "2026-07-13T02:33:27.360Z"
+    },
+    {
+      "title": "最长上升子序列2",
+      "tags": [
+        "二分查找",
+        "动态规划",
+        "精选题库"
+      ],
+      "difficulty": "高",
+      "source": "XMUOJ | 2026年程序设计实践例题(05李胜睿班)",
+      "original_problem": "## 描述\n\n给定一个长度为N的数列，求数值严格单调递增的子序列的长度最长是多少。\n\n**数据范围**\n1<=N<=100000,\n-10^9<=数列中的数<=10^9\n\n\n## 输入\n\n第一行包含整数N。\n\n第二行包含N个整数，表示完整序列。\n\n\n## 输出\n\n输出一个整数，表示最大长度。\n\n\n## 输入样例 1 \n\n7\n3 1 2 1 8 5 6\n## 输出样例 1\n\n4",
+      "explanation_cpp": "## 解法二：贪心 + 二分（O(n log n)）\n\n### 核心思想\n\n维护一个数组 tails，其中 tails[k] 表示长度为 k+1 的上升子序列的最小末尾元素。\n遍历每个元素 x，在 tails 中找到第一个大于等于 x 的位置（二分查找），用 x 替换它；如果 x 大于所有尾部元素，则追加到末尾。\n这样 tails 的长度就是最长上升子序列的长度。\n\n### 正确性说明\n\ntails 始终是递增的（因为每次替换保证性质），且替换操作不会丢失最优解，因为用更小的尾部元素代替较大的尾部元素，不会使后续序列变差。最终长度即为答案。\n\n### 复杂度\n\n时间：O(n log n)，适用于 n 较大（如 10^5）。\n\n空间：O(n)。",
+      "code_cpp": "#include <iostream>\n#include <vector>\n#include <algorithm>\n\nusing namespace std;\n\n//贪心+二分\nint main(){\n    int n;\n    cin>>n;\n    vector<long> a(n);\n    for(int i=0; i<n; i++) cin>>a[i];\n\n    // tails[i] 表示长度为 i+1 的上升子序列的末尾元素的最小值\n    vector<long> tails;\n    for(int x:a){\n        //使用二分查找找到第一个大于等于 x 的位置\n        auto it = lower_bound(tails.begin(), tails.end(), x);\n        //如果 x 大于所有元素，说明可以扩展最长上升子序列\n        if(it==tails.end()) tails.push_back(x);\n        //否则更新该位置的元素为 x，保持最小值\n        else *it=x;\n    }\n    cout<<tails.size()<<endl;\n    return 0;\n}",
+      "explanation_python": "",
+      "code_python": "",
+      "id": 72,
+      "createdAt": "2026-07-13T02:33:00.043Z",
+      "updatedAt": "2026-07-13T02:54:05.570Z"
+    },
+    {
+      "title": "最长公共子序列",
+      "tags": [
+        "动态规划",
+        "精选题库"
+      ],
+      "difficulty": "中",
+      "source": "XMUOJ | 2026年程序设计实践例题(05李胜睿班)",
+      "original_problem": "## 描述\n\n给定两个长度分别为N和M的字符串A和B，求既是A的子序列又是B的子序列的字符串长度最长是多少。\n**数据范围**\n1≤N,M≤1000\n\n\n## 输入\n\n第一行包含两个整数N和M。\n\n第二行包含一个长度为N的字符串，表示字符串A。\n\n第三行包含一个长度为M的字符串，表示字符串B。\n\n字符串均由小写字母构成。\n\n\n## 输出\n\n输出一个整数，表示最大长度。\n\n\n## 输入样例 1 \n\n4 5\nacbd\nabedc\n## 输出样例 1\n\n3",
+      "explanation_cpp": "## 分析\n\n最长公共子串(Longest Common Substirng)和最长公共子序列(Longest Common Subsequence,LCS)的区别为:子串是串的一个连续的部分，子序列则是不改变序列的顺序， 而从序列中去掉任意的元素而获得新的序列；也就是说，子串中字符的位置必须是连续的， 子序列则可以不必连续。字符串长度小于等于1000。\n与最长不下降子序列(LIS)类似的，我们可以以子序列的结尾作为状态，但现在有两个子序列，那么直接以两个子序列当前的结尾作为状态即可。 \n\n## 确定状态 \n\n设F[x][y]表示S[1..x]与T[1..y]的最长公共子序列的长度。答案为F[|S|]][|T|]。\n\n## 确定状态转移方程和边界条件:\n\n**分三种情况来考虑:** \n·S[x]不在公共子序列中:该情况下F[x][y]=F[x-1][v];\n·T[y]不在公共子序列中；该情况下F[x][y]=F[x][y-1]; \n·S[x]=T[y],S[x]与T[y]在公共子序列中:该情况下，F[x][y]=F[x-1][y-1]+1。 \nF[x][y]取上述三种情况的最大值。综上。 \n状态转移方程；**F[x][y]=max(F[x-1][y],F[x][y-1],F[x-1][y-1]+1)**,其中第三种情况要满足S[x]=T[y]; \n**边界条件**:F[0][y]=0,F[x][0]=0。 \n\n\n## 程序实现\n\n计算F[x][v]时用到F[x-1][y-1],F[x-1][y],F[x][y-1]这些状态，它们要么在F[x][y]的上-行。要么在F[x][y]的左边。因此预处理出第0行，然后按照行从小到大、同-行按照列从小到大的顺序来计算就可以用迭代法计算出来。时间复杂度为O(|S|*|T|)。",
+      "code_cpp": "#include <iostream>\n#include <cstring>\n#include <algorithm>\nusing namespace std;\n\nint n,m;\nstring A,B;\nint dp[1005][1005];\n\nint main(){\n    cin>>n>>m;\n    cin>>A>>B;\n    for(int i=1;i<=n;i++){\n        for(int j=1;j<=m;j++){\n            dp[i][j]=max(dp[i-1][j],dp[i][j-1]);\n            if(A[i-1]==B[j-1]){\n                dp[i][j]=max(dp[i][j],dp[i-1][j-1]+1);\n            }\n        }\n    }\n    cout<<dp[n][m]<<endl;\n    return 0;\n}",
+      "explanation_python": "",
+      "code_python": "",
+      "id": 73,
+      "createdAt": "2026-07-13T02:44:51.092Z"
+    },
+    {
+      "title": "石子合并",
+      "tags": [
+        "动态规划",
+        "区间DP",
+        "精选题库"
+      ],
+      "difficulty": "中",
+      "source": "XMUOJ | 2026年程序设计实践例题(05李胜睿班)",
+      "original_problem": "## 描述\n\n设有N堆石子排成一排，其编号为1，2，3，…，N。\n\n每堆石子有一定的质量，可以用一个整数来描述，现在要将这N堆石子合并成为一堆。\n\n每次只能合并相邻的两堆，合并的代价为这两堆石子的质量之和，合并后与这两堆石子相邻的石子将和新堆相邻，合并时由于选择的顺序不同，合并的总代价也不相同。\n\n例如有4堆石子分别为 1 3 5 2， 我们可以先合并1、2堆，代价为4，得到4 5 2， 又合并 1，2堆，代价为9，得到9 2 ，再合并得到11，总代价为4+9+11=24；\n\n如果第二步是先合并2，3堆，则代价为7，得到4 7，最后一次合并代价为11，总代价为4+7+11=22。\n\n问题是：找出一种合理的方法，使总的代价最小，输出最小代价。\n\n**数据范围**\n1≤N≤300\n\n\n## 输入\n\n第一行一个数N表示石子的堆数N。\n\n第二行N个数，表示每堆石子的质量(均不超过1000)。\n\n\n## 输出\n\n输出一个整数，表示最小代价。\n\n\n## 输入样例 1 \n\n4\n1 3 5 2\n## 输出样例 1\n\n22",
+      "explanation_cpp": "## 问题描述\n\n有 N 堆石子排成一排，每堆有质量 a[i]。每次只能合并相邻的两堆，合并代价为两堆质量之和，合并后的新堆质量也为二者之和。求将 N 堆合并成一堆的最小总代价。\n\n## 算法思路\n\n这是典型的区间动态规划问题，因为合并过程具有最优子结构：若要将区间 [l, r] 合并成一堆，最后一次合并一定是将某个分界点 k（l ≤ k < r）左侧区间 [l, k] 合并成的一堆，与右侧区间 [k+1, r] 合并成的一堆进行合并。因此，我们只需要枚举分界点，并保证左右区间已经以最优方式合并。\n\n### 状态定义\n\n令 dp[l][r] 表示将**第 l 堆到第 r 堆合并成一堆所需的最小代价。**\n\n### 转移方程\n\n对于区间 [l, r]，枚举 k（l ≤ k < r）作为最后一次合并的分界点：\n\n```text\ndp[l][r] = min_{l ≤ k < r} ( dp[l][k] + dp[k+1][r] ) + sum[l][r]```\n其中 **sum[l][r] 表示区间 [l, r] 内所有石子的总质量，即最后一次合并的代价**。\n\n### 初始化\n\n当 l == r 时，区间只有一堆石子，无需合并，代价为 0，即 dp[i][i] = 0。\n\n其他区间初始化为一个很大的数（如 INF）。\n\n### 计算顺序\n\n由于转移依赖于较短的区间（dp[l][k] 和 dp[k+1][r] 长度均小于当前区间长度），我们按区间长度从小到大递推：先计算长度为 1 的区间，再长度 2，3，...，直到长度为 N。\n\n### 优化：前缀和快速求区间和\n\n预处理前缀和 pre[i]，则 sum[l][r] = pre[r] - pre[l-1]，可 O(1) 得到。\n\n## 复杂度分析\n\n时间复杂度：O(N³)，因为区间数 O(N²)，每个区间枚举分界点 O(N)，N ≤ 300，完全可行。\n\n空间复杂度：O(N²)。",
+      "code_cpp": "#include <iostream>\n#include <vector>\n#include <algorithm>\nusing namespace std;\n\nconst int INF = 0x3f3f3f3f;\n\nint main() {\n    int n;\n    cin >> n;\n    vector<int> a(n + 1);\n    vector<int> pre(n + 1, 0);\n    for (int i = 1; i <= n; ++i) {\n        cin >> a[i];\n        pre[i] = pre[i - 1] + a[i];\n    }\n\n    vector<vector<int>> dp(n + 1, vector<int>(n + 1, INF));\n    for (int i = 1; i <= n; ++i) dp[i][i] = 0;\n\n    // 按区间长度递推\n    for (int len = 2; len <= n; ++len) {\n        for (int l = 1; l + len - 1 <= n; ++l) {\n            int r = l + len - 1;\n            int sum = pre[r] - pre[l - 1];\n            for (int k = l; k < r; ++k) {\n                dp[l][r] = min(dp[l][r], dp[l][k] + dp[k + 1][r] + sum);\n            }\n        }\n    }\n\n    cout << dp[1][n] << endl;\n    return 0;\n}",
+      "explanation_python": "",
+      "code_python": "",
+      "id": 74,
+      "createdAt": "2026-07-13T02:53:14.889Z",
+      "updatedAt": "2026-07-13T02:54:37.091Z"
+    },
+    {
+      "title": "没有上司的舞会",
+      "tags": [
+        "动态规划",
+        "树形DP",
+        "深搜DFS",
+        "精选题库"
+      ],
+      "difficulty": "",
+      "source": "XMUOJ | 2026年程序设计实践例题(05李胜睿班)",
+      "original_problem": "## 描述\n\nUral大学有N名职员，编号为1~N。\n\n他们的关系就像一棵以校长为根的树，父节点就是子节点的直接上司。\n\n每个职员有一个快乐指数，用整数Hi给出，其中1≤i≤N。\n\n现在要召开一场周年庆宴会，不过，没有职员愿意和直接上司一起参会。\n\n在满足这个条件的前提下，主办方希望邀请一部分职员参会，使得所有参会职员的快乐指数总和最大，求这个最大值。\n\n**数据范围**\n\n1≤N≤6000,\n−128≤Hi≤127\n\n\n## 输入\n\n第一行一个整数N。\n\n接下来N行，第 i 行表示 i 号职员的快乐指数Hi。\n\n接下来N-1行，每行输入一对整数L, K,表示K是L的直接上司。\n\n\n## 输出\n\n输出最大的快乐指数。\n\n\n## 输入样例 1 \n\n7\n1\n1\n1\n1\n1\n1\n1\n1 3\n2 3\n6 4\n7 4\n4 5\n3 5\n## 输出样例 1\n\n5",
+      "explanation_cpp": "## 问题描述\n\n给定 n 个人形成一棵管理树（每个人至多有一个上司），每个人有一个快乐值。要从这些人中挑选一部分参加舞会，要求任意一对直接的上下级不能同时参加，求能获得的最大总快乐值。代码文件： 没有上司的舞会.cpp:1-80\n\n## 建模思路\n这是标准的“树形动态规划”问题。把组织看成以无上司节点为根的树，每个节点代表一个人。对每个节点 u，维护两个状态：\n\nf[u][0]：u 不参加时，子树能获得的最大快乐值；\nf[u][1]：u 参加时，子树能获得的最大快乐值（此时所有直接下属必须不参加）。\n## 状态转移\n\n初始：f[u][0] = 0，f[u][1] = val[u]（val[u] 为 u 的快乐值）。\n对于每个子节点 v（v 是 u 的直接下属）：\n当 u 不参加时，v 可以选择参加或不参加，取最大值：\nf[u][0] += max(f[v][0], f[v][1])\n当 u 参加时，v 必须不参加：\nf[u][1] += f[v][0]\n以上转移由代码中递归 DFS 自底向上计算实现（函数 dfs(x)）。\n\n## 实现要点（对应代码）\n\n使用邻接表 vector<int> road[N] 存储以每个主管为索引的直接下属列表。\n用布尔数组 have_sup[] 标记哪些人有上司，最后找到无上司的根 boss，对该根调用 dfs(boss)。\n最终答案为 max(f[boss][0], f[boss][1])。\n代码中 N 取 6005，数组下标从 1 到 n 使用。\n## 复杂度:\n\n时间复杂度：O(n)。每个节点在 DFS 中被访问一次，处理其所有子节点的贡献。\n空间复杂度：O(n)（用于邻接表和 DP 数组）。",
+      "code_cpp": "#include <cstdio>\n#include <iostream>\n#include <cstring>\n#include <vector>\n#define N 6005\nusing namespace std;\n\nvector<int> road[N];   // 邻接表：road[x] 存放 x 的直接下属\nint f[N][2], val[N];   // f[i][0/1] 表示 i 不选/选 时的最大快乐值\nint n, boss;\nbool have_sup[N];      // 标记某人是否有上司\n\nint max(int a, int b)\n{\n\treturn a > b ? a : b;\n}\n\nvoid dfs(int x)\n{\n\t// 初始化：x 不参加时快乐值为 0，参加时为自己的快乐值\n\tf[x][0] = 0;\n\tf[x][1] = val[x];\n\n\tfor (auto v : road[x])\n\t{\n\t\tdfs(v); // 先计算子节点\n\n\t\t// x 不参加，孩子可以自由选择\n\t\tf[x][0] += max(f[v][1], f[v][0]);\n\n\t\t// x 参加，孩子必须不参加\n\t\tf[x][1] += f[v][0];\n\t}\n}\n\nint main()\n{\n\tmemset(have_sup, false, sizeof(have_sup));\n\tcin >> n;\n\n\t// 输入每个人的快乐值\n\tfor (int i = 1; i <= n; i++)\n\t\tcin >> val[i];\n\n\tint k, l;\n\t// 输入关系：l 的上司是 k\n\tfor (int i = 1; i <= n - 1; i++)\n\t{\n\t\tcin >> l >> k;\n\t\troad[k].push_back(l);\n\t\thave_sup[l] = true;\n\t}\n\n\t// 找到没有上司的人，也就是树根\n\tfor (int i = 1; i <= n; i++)\n\t\tif (!have_sup[i])\n\t\t{\n\t\t\tboss = i;\n\t\t\tbreak;\n\t\t}\n\n\tdfs(boss);\n\tint ans = max(f[boss][1], f[boss][0]);\n\tcout << ans << endl;\n\treturn 0;\n}",
+      "explanation_python": "",
+      "code_python": "",
+      "id": 75,
+      "createdAt": "2026-07-13T03:33:18.895Z"
+    },
+    {
+      "title": "加分二叉树",
+      "tags": [
+        "区间DP",
+        "动态规划"
+      ],
+      "difficulty": "中",
+      "source": "XMUOJ | 2026年程序设计实践例题(05李胜睿班)",
+      "original_problem": "## 描述\n\n设一个 n 个节点的二叉树 tree 的中序遍历为（1,2,3,…,n），其中数字 1,2,3,…,n 为节点编号。\n\n每个节点都有一个分数（均为正整数），记第 i 个节点的分数为 di，tree 及它的每个子树都有一个加分，任一棵子树 subtree（也包含 tree 本身）的加分计算方法如下：\n\nsubtree的左子树的加分 × subtree的右子树的加分 ＋ subtree的根的分数\n\n若某个子树为空，规定其加分为 1。\n\n叶子的加分就是叶节点本身的分数，不考虑它的空子树。\n\n试求一棵符合中序遍历为（1,2,3,…,n）且加分最高的二叉树 tree。\n\n要求输出：\n\n（1）tree的最高加分\n\n（2）tree的前序遍历\n\n\n## 输入\n\n第 1 行：一个整数 n，为节点个数。n<=30\n\n第 2 行：n 个用空格隔开的整数，为每个节点的分数（0<分数<100）。\n\n\n## 输出\n\n第 1 行：一个整数，为最高加分\n\n第 2 行：n 个用空格隔开的整数（最后一个数后面没空格），为该树的前序遍历。如果存在多种方案，则输出字典序最小的方案。\n\n\n## 输入样例 1 \n\n5\n5 7 1 2 10\n## 输出样例 1\n\n145\n3 1 2 4 5",
+      "explanation_cpp": "## 题目大意\n\n给定一棵二叉树的中序遍历为 1, 2, …, n（节点编号即中序遍历顺序），每个节点有一个正整数权值 di。定义一棵子树的加分：\n\n若子树为空，加分为 1；\n\n否则，加分 = (左子树加分) × (右子树加分) + (根节点的权值)。\n\n求所有符合该中序遍历的二叉树中，加分最高的那棵树，并输出：\n\n最高加分值；\n\n该树的前序遍历序列（若有多棵，输出字典序最小的前序遍历）。\n\n## 算法分析\n\n由于中序遍历固定为递增序列，任意一棵子树对应原序列中的一个连续区间 [l, r]（l 到 r 的节点构成）。因此可以定义区间 DP。\n\n### 状态定义\n\n令 dp[l][r] 表示由节点 l 到 r 构成的中序遍历子树所能获得的最大加分（1 ≤ l ≤ r ≤ n）。\n同时用 root[l][r] 记录达到该最大加分时，区间 [l, r] 的根节点编号（用于后续构造前序遍历）。\n\n### 转移方程\n\n对于区间 [l, r]，枚举根节点 k（l ≤ k ≤ r）：\n\n左子树区间为 [l, k-1]，其加分为 left = (l == k ? 1 : dp[l][k-1])；\n\n右子树区间为 [k+1, r]，其加分为 right = (k == r ? 1 : dp[k+1][r])；\n\n整棵树的加分为 score = left * right + val[k]。\n\n取所有 k 中 score 的最大值作为 dp[l][r]，同时记录对应的 k 为 root[l][r]。\n\n### 边界条件\n\n空区间（l > r）的加分规定为 1，但 DP 中通常不显式存储，直接在转移时判断。\n\n单个节点区间 [l, l]：左、右子树均为空，left = right = 1，加分 = 1 * 1 + val[l] = val[l]，符合叶子节点加分定义。\n\n### 字典序最小的前序遍历\n\n题目要求：若有多棵树达到最大加分，输出前序遍历字典序最小的那个。\n\n前序遍历的顺序为：根 → 左子树 → 右子树。因此要使整个前序序列字典序最小，应优先让根节点的编号尽可能小。若根相同，再考虑左子树的前序尽量小，然后是右子树。由于中序是连续的，我们可以这样处理：\n在转移时，若当前枚举的 k 得到的加分 大于 已记录的最大加分，则更新；若 等于 最大加分，且 k 小于之前记录的根，则更新 root[l][r] 为更小的 k。这样就能确保最终根最小，且递归构造左右子树时也会采用同样的策略，从而得到整体字典序最小的前序序列。\n\n## 复杂度\n\n区间数 O(n^2)，每个区间枚举根 O(n)，总时间复杂度 O(n^3)。\n\nn ≤ 30，完全可行。\n\n空间复杂度 O(n^2)。",
+      "code_cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nconst int MAXN = 35;\nlong long dp[MAXN][MAXN];\nint root[MAXN][MAXN];\nint score[MAXN];\nint n;\n\n// void printPreorder(int l, int r) {\n//     if (l > r) return;\n//     int rt = root[l][r];\n//     cout << rt;\n//     if (l < r) cout << ' ';  // 控制空格\n//     printPreorder(l, rt - 1);\n//     if (rt + 1 <= r) {\n//         if (l < rt) cout << ' '; // 但递归内部会处理空格，这里简化\n//     }\n//     // 更稳妥：用一个 vector 收集再输出\n// }\n\nint main() {\n    cin >> n;\n    for (int i = 1; i <= n; ++i) cin >> score[i];\n\n    // 区间长度从 1 到 n\n    for (int len = 1; len <= n; ++len) {\n        for (int l = 1; l + len - 1 <= n; ++l) {\n            int r = l + len - 1;\n            if (len == 1) {\n                dp[l][r] = score[l];\n                root[l][r] = l;\n            } else {\n                long long bestVal = -1;\n                int bestRoot = l;\n                for (int k = l; k <= r; ++k) {\n                    long long left = (k == l) ? 1 : dp[l][k - 1];\n                    long long right = (k == r) ? 1 : dp[k + 1][r];\n                    long long val = left * right + score[k];\n                    if (val > bestVal || (val == bestVal && k < bestRoot)) {\n                        bestVal = val;\n                        bestRoot = k;\n                    }\n                }\n                dp[l][r] = bestVal;\n                root[l][r] = bestRoot;\n            }\n        }\n    }\n\n    // 输出最大加分\n    cout << dp[1][n] << endl;\n\n    // 输出前序遍历（用 vector 收集）\n    vector<int> pre;\n    // 使用 lambda 函数进行前序遍历\n    function<void(int,int)> dfs = [&](int l, int r) {\n        if (l > r) return;\n        int rt = root[l][r];\n        pre.push_back(rt);\n        dfs(l, rt - 1);\n        dfs(rt + 1, r);\n    };\n    dfs(1, n);\n    for (int i = 0; i < pre.size(); ++i) {\n        if (i) cout << ' ';\n        cout << pre[i];\n    }\n    cout << endl;\n\n    return 0;\n}",
+      "explanation_python": "",
+      "code_python": "",
+      "id": 76,
+      "createdAt": "2026-07-13T04:17:21.952Z"
     }
   ],
   "customTags": [
     "精选题库",
-    "精确覆盖"
+    "精确覆盖",
+    "广搜BFS",
+    "拓扑排序",
+    "图论",
+    "动态规划",
+    "背包问题",
+    "区间DP",
+    "树形DP"
   ],
   "collections": [
     {
@@ -859,16 +1272,78 @@
         49,
         50,
         51,
-        52
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62
       ],
       "createdAt": "2026-07-03T08:44:42.388Z"
     },
     {
-      "id": 2,
-      "name": "程序设计实践之剑道试炼(05李胜睿班)",
-      "description": "剑道录题库——172道武侠风编程题，从变量到动态规划，完整覆盖程序设计基础知识。",
-      "problemIds": [],
-      "createdAt": "2026-07-03T08:46:18.669Z"
+      "id": 3,
+      "name": "精选题目",
+      "description": "",
+      "problemIds": [
+        4,
+        6,
+        11,
+        17,
+        18,
+        23,
+        25,
+        32,
+        33,
+        34,
+        35,
+        39,
+        40,
+        38,
+        42,
+        43,
+        45,
+        48,
+        49,
+        50,
+        52,
+        51,
+        53,
+        56,
+        57,
+        58,
+        59,
+        60,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        24,
+        61,
+        54,
+        55,
+        37,
+        47,
+        29,
+        31,
+        76
+      ],
+      "createdAt": "2026-07-13T03:35:54.713Z"
     }
   ]
 }

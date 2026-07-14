@@ -138,22 +138,28 @@ function renderMarkdown(text) {
         return `\x00CODE${idx}\x00`;
     });
 
-    // 2. 转义 HTML
+    // 2. 提取并保护数学公式 ($...$ 和 $$...$$)
+    const mathResult = extractMathFormulas(html);
+    html = mathResult.text;
+    const mathBlocks = mathResult.mathBlocks;
+    const mathInlines = mathResult.mathInlines;
+
+    // 3. 转义 HTML
     html = html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-    // 3. 分割线（在标题之前处理）
+    // 4. 分割线（在标题之前处理）
     html = html.replace(/^(---|\*\*\*|___)\s*$/gm, '<hr>');
 
-    // 4. 标题
+    // 5. 标题
     html = html.replace(/^#### (.+)$/gm, '<h5>$1</h5>');
     html = html.replace(/^### (.+)$/gm, '<h4>$1</h4>');
     html = html.replace(/^## (.+)$/gm, '<h3>$1</h3>');
     html = html.replace(/^# (.+)$/gm, '<h2>$1</h2>');
 
-    // 5. 引用块
+    // 6. 引用块
     html = html.replace(/^&gt; ?(.+)$/gm, '<blockquote-line>$1</blockquote-line>');
 
-    // 6. 表格（在块级元素处理前）
+    // 7. 表格（在块级元素处理前）
     html = html.replace(/^\|(.+)\|$/gm, (match) => {
         const cells = match.split('|').filter(c => c.trim()).map(c => c.trim());
         // 跳过分隔行
@@ -162,24 +168,24 @@ function renderMarkdown(text) {
         return `<tr>${cellHtml}</tr>`;
     });
 
-    // 7. 粗体和斜体
+    // 8. 粗体和斜体
     html = html.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
     html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
     html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
 
-    // 8. 行内代码
+    // 9. 行内代码
     html = html.replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>');
 
-    // 9. 链接
+    // 10. 链接
     html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
 
-    // 10. 有序列表
+    // 11. 有序列表
     html = html.replace(/^(\d+)\. (.+)$/gm, '\x01LI\x01$2');
 
-    // 11. 无序列表
+    // 12. 无序列表
     html = html.replace(/^[-*] (.+)$/gm, '\x01LI\x01$1');
 
-    // 12. 将标记的列表项包装为 <ul>（如果前缀是数字则为 <ol>）
+    // 13. 将标记的列表项包装为 <ul>（如果前缀是数字则为 <ol>）
     // 简化处理：全部用 <ul> 包装（有序/无序混用场景较少）
     html = html.replace(/(?:\x01LI\x01.+\n?)+/g, (match) => {
         const items = match.split('\x01LI\x01').filter(s => s.trim());
@@ -187,13 +193,13 @@ function renderMarkdown(text) {
         return `<ul>${lis}</ul>`;
     });
 
-    // 13. 处理引用块：合并相邻行
+    // 14. 处理引用块：合并相邻行
     html = html.replace(/(?:<blockquote-line>.*<\/blockquote-line>\n?)+/g, (match) => {
         const lines = match.replace(/<blockquote-line>/g, '').replace(/<\/blockquote-line>/g, '<br>');
         return `<blockquote><p>${lines.replace(/<br>$/, '')}</p></blockquote>`;
     });
 
-    // 14. 处理表格
+    // 15. 处理表格
     html = html.replace(/(?:<tr>.*<\/tr>\n?)+/g, (match) => {
         // 移除分隔行标记
         let tableHtml = match.replace(/%%TABLE_SEP%%\n?/g, '');
@@ -207,23 +213,38 @@ function renderMarkdown(text) {
         return `<div class="table-wrapper"><table>${tableHtml}</tbody></table></div>`;
     });
 
-    // 15. 段落（双换行）
+    // 16. 段落（双换行）
     html = html.replace(/\n\n+/g, '</p><p>');
     html = '<p>' + html + '</p>';
 
-    // 16. 单换行转 <br>
+    // 17. 单换行转 <br>
     html = html.replace(/\n/g, '<br>');
 
-    // 17. 恢复代码块
+    // 18. 恢复代码块（带语法高亮）
     html = html.replace(/\x00CODE(\d+)\x00/g, (_, idx) => {
         const block = codeBlocks[parseInt(idx)];
         const langLabel = block.lang
             ? `<span class="preview-code-lang">${escapeHtml(block.lang)}</span>`
             : '';
-        return `<pre class="preview-code-block">${langLabel}<code>${escapeHtml(block.code)}</code></pre>`;
+        let codeHtml = escapeHtml(block.code);
+        if (block.lang && typeof hljs !== 'undefined') {
+            try {
+                const result = hljs.highlight(block.code, {
+                    language: block.lang,
+                    ignoreIllegals: true
+                });
+                codeHtml = result.value;
+            } catch (e) {
+                // 高亮失败时回退到转义文本
+            }
+        }
+        return `<pre class="preview-code-block">${langLabel}<code class="hljs language-${escapeHtml(block.lang)}">${codeHtml}</code></pre>`;
     });
 
-    // 18. 清理
+    // 19. 恢复数学公式
+    html = restoreMathFormulas(html, mathBlocks, mathInlines);
+
+    // 20. 清理
     html = html.replace(/<p>\s*<\/p>/g, '');
     html = html.replace(/<p><ul>/g, '<ul>');
     html = html.replace(/<\/ul><\/p>/g, '</ul>');

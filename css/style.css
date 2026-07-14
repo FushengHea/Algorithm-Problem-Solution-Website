@@ -312,7 +312,6 @@ body::before {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
-    flex: 1;
 }
 
 .tag-btn {
@@ -356,6 +355,25 @@ body::before {
     display: flex;
     align-items: center;
     gap: 10px;
+}
+
+/* Filter groups: tag-list + collection-filter side by side */
+.filter-groups {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.filter-groups > .tag-list {
+    flex: 6;
+    min-width: 0;
+}
+
+.filter-groups > .collection-filter {
+    flex: 4;
+    min-width: 0;
 }
 
 .search-box {
@@ -1410,9 +1428,10 @@ body::before {
         gap: 10px;
     }
 
-    .tag-list {
+    .filter-groups {
         order: 3;
         width: 100%;
+        flex-direction: column;
     }
 
     .search-box input {
@@ -2050,4 +2069,32 @@ body::before {
     font-style: italic;
     text-align: center;
     padding: 20px;
+}
+
+/* ========================================
+   MATH FORMULAS (KaTeX)
+   ======================================== */
+
+.math-block {
+    text-align: center;
+    margin: 16px 0;
+    overflow-x: auto;
+    padding: 4px 0;
+}
+
+.math-block > .katex-display {
+    margin: 0.5em 0;
+}
+
+.math-inline {
+    display: inline;
+}
+
+.math-error {
+    color: #dc2626;
+    background: #fef2f2;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 13px;
 }
