@@ -253,25 +253,27 @@ function extractMathFormulas(text) {
     const mathInlines = [];  // $...$ 行内公式
 
     // 0. 保护转义的美元符号：\$ → 哨兵
-    text = text.replace(/\\\$/g, '\x00ESCDOLLAR\x00');
+    text = text.replace(/\\\$/g, '\x01ESCDOLLAR\x01');
 
     // 1. 提取显示数学公式 $$...$$
     text = text.replace(/\$\$([\s\S]+?)\$\$/g, (_, formula) => {
         const idx = mathBlocks.length;
-        mathBlocks.push(formula.trim());
-        return '\x00MATHBLOCK' + idx + '\x00';
+        // 在存入数组前还原公式内的转义美元符号
+        mathBlocks.push(formula.trim().replace(/\x01ESCDOLLAR\x01/g, '\\$'));
+        return '\x01MATHBLOCK' + idx + '\x01';
     });
 
     // 2. 提取行内数学公式 $...$
-    //    要求 $ 后面不能紧跟空白（避免误匹配货币/普通文本）
-    text = text.replace(/(?<!\$)\$(?!\s)([^$\n]+?)(?<!\s)\$/g, (_, formula) => {
+    //    放宽限制：允许 $ 后的空格，支持中文排版中 "$ O(n) $" 写法
+    text = text.replace(/(?<!\$)\$(.+?)\$/g, (_, formula) => {
         const idx = mathInlines.length;
-        mathInlines.push(formula.trim());
-        return '\x00MATHINLINE' + idx + '\x00';
+        // 在存入数组前还原公式内的转义美元符号
+        mathInlines.push(formula.trim().replace(/\x01ESCDOLLAR\x01/g, '\\$'));
+        return '\x01MATHINLINE' + idx + '\x01';
     });
 
     // 3. 恢复转义的美元符号
-    text = text.replace(/\x00ESCDOLLAR\x00/g, '$');
+    text = text.replace(/\x01ESCDOLLAR\x01/g, '$');
 
     return { text, mathBlocks, mathInlines };
 }
@@ -287,7 +289,7 @@ function extractMathFormulas(text) {
  */
 function restoreMathFormulas(html, mathBlocks, mathInlines) {
     // 恢复显示公式
-    html = html.replace(/\x00MATHBLOCK(\d+)\x00/g, (_, idx) => {
+    html = html.replace(/\x01MATHBLOCK(\d+)\x01/g, (_, idx) => {
         const formula = mathBlocks[parseInt(idx)];
         if (typeof katex !== 'undefined') {
             try {
@@ -302,7 +304,7 @@ function restoreMathFormulas(html, mathBlocks, mathInlines) {
     });
 
     // 恢复行内公式
-    html = html.replace(/\x00MATHINLINE(\d+)\x00/g, (_, idx) => {
+    html = html.replace(/\x01MATHINLINE(\d+)\x01/g, (_, idx) => {
         const formula = mathInlines[parseInt(idx)];
         if (typeof katex !== 'undefined') {
             try {

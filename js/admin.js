@@ -7,41 +7,23 @@ let currentCollectionId = null;
 let collectionModalSelections = new Set();
 
 // ==================== 密码验证 ====================
-
-const PASSWORD_HASH = '1d97745c328462d65aa8028d262df0e6b47c9fae409f04fd1d31f31c4736d38e';
-
-async function sha256(message) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(message);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
-function isAuthenticated() {
-    return sessionStorage.getItem('adminAuth') === 'true';
-}
+// 密码常量与校验函数见 js/auth.js，首页的编辑入口共用
 
 async function checkPassword() {
     const input = document.getElementById('authPasswordInput').value;
     if (!input) return;
 
-    const hash = await sha256(input);
-    if (hash === PASSWORD_HASH) {
-        sessionStorage.setItem('adminAuth', 'true');
+    if (await verifyAdminPassword(input)) {
+        markAuthenticated();
         document.getElementById('authOverlay').style.display = 'none';
         document.getElementById('adminContainer').style.display = 'block';
         initAdminPage();
     } else {
         const errorEl = document.getElementById('authError');
         errorEl.textContent = '❌ 密码错误';
-        errorEl.style.display = 'block';
         document.getElementById('authPasswordInput').value = '';
         document.getElementById('authPasswordInput').focus();
-        // 抖动效果
-        errorEl.style.animation = 'none';
-        errorEl.offsetHeight; // 触发回流
-        errorEl.style.animation = 'authShake 0.3s ease';
+        shakeAuthError(errorEl);
     }
 }
 
@@ -69,6 +51,31 @@ async function initAdminPage() {
     renderCollectionList();
     initPreviewToggles();
     switchAdminTab('problems');
+    openEditTargetFromUrl();
+}
+
+/**
+ * 支持 admin.html?edit=<题目id> 直达某题编辑界面
+ * （由首页题解弹窗里的「编辑本题」跳转过来）
+ */
+function openEditTargetFromUrl() {
+    const params = new URLSearchParams(location.search);
+    if (!params.has('edit')) return;
+
+    const targetId = parseInt(params.get('edit'), 10);
+    // 用 hash 保留题目定位信息，同时清掉 query，避免刷新后重复覆盖编辑内容
+    history.replaceState({}, '', 'admin.html');
+
+    if (Number.isNaN(targetId)) return;
+
+    const problem = PROBLEMS.find(p => p.id === targetId);
+    if (!problem) {
+        showToast(`未找到题目 #${targetId}`, 'error');
+        return;
+    }
+
+    editProblem(targetId);
+    showToast(`正在编辑：${problem.title}`, 'success');
 }
 
 // ==================== Markdown 预览 ====================
@@ -472,7 +479,51 @@ function renderAdminProblemList() {
         return;
     }
 
-    container.innerHTML = PROBLEMS.map(p => `
+    const allTags = getAllTags();
+    const usedProblems = new Set();
+    let html = '';
+
+    // 为每个标签创建可折叠的分组
+    allTags.forEach(tag => {
+        const problems = PROBLEMS.filter(p => p.tags && p.tags.includes(tag));
+        if (problems.length === 0) return;
+        problems.forEach(p => usedProblems.add(p.id));
+
+        html += `
+            <div class="admin-tag-group">
+                <div class="admin-tag-group-header" onclick="toggleTagGroup(this)">
+                    <span class="admin-tag-group-icon">▼</span>
+                    <span class="admin-tag-group-name">🏷 ${escapeHtml(tag)}</span>
+                    <span class="admin-tag-group-count">${problems.length} 题</span>
+                </div>
+                <div class="admin-tag-group-body">
+                    ${problems.map(p => renderSingleAdminProblem(p)).join('')}
+                </div>
+            </div>`;
+    });
+
+    // 无标签题目归入"未分类"
+    const unclassified = PROBLEMS.filter(p => !p.tags || p.tags.length === 0);
+    if (unclassified.length > 0) {
+        html += `
+            <div class="admin-tag-group">
+                <div class="admin-tag-group-header" onclick="toggleTagGroup(this)">
+                    <span class="admin-tag-group-icon">▼</span>
+                    <span class="admin-tag-group-name">📦 未分类</span>
+                    <span class="admin-tag-group-count">${unclassified.length} 题</span>
+                </div>
+                <div class="admin-tag-group-body">
+                    ${unclassified.map(p => renderSingleAdminProblem(p)).join('')}
+                </div>
+            </div>`;
+    }
+
+    container.innerHTML = html;
+}
+
+/** 渲染单个题目行（用于分组列表） */
+function renderSingleAdminProblem(p) {
+    return `
         <div class="admin-problem-item">
             <div class="admin-problem-info">
                 <div class="admin-problem-name">
@@ -490,8 +541,14 @@ function renderAdminProblemList() {
                 <button class="btn btn-secondary btn-small" onclick="editProblem(${p.id})">✏️ 编辑</button>
                 <button class="btn btn-danger btn-small" onclick="deleteProblemById(${p.id})">🗑️ 删除</button>
             </div>
-        </div>
-    `).join('');
+        </div>`;
+}
+
+/** 切换标签分组的折叠/展开 */
+function toggleTagGroup(header) {
+    const body = header.nextElementSibling;
+    const isCollapsed = header.classList.toggle('collapsed');
+    body.style.display = isCollapsed ? 'none' : '';
 }
 
 // ==================== 导入导出 ====================

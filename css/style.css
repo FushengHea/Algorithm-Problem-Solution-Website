@@ -91,15 +91,24 @@ body::before {
 
 .hero-header {
     position: relative;
-    background: var(--bg-header);
+    background: #0d1f14;
     color: var(--text-light);
-    text-align: center;
-    padding: 60px 20px 50px;
-    overflow: hidden;
     z-index: 1;
 }
 
-.hero-header::before {
+/* 首屏封面：带标题版特摄机甲图 */
+.hero-art {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1664 / 928;
+    min-height: 340px;
+    /* 尽量完整展示封面，只在窗口特别扁时轻微裁切 */
+    max-height: 92vh;
+    overflow: hidden;
+    background: #0d1f14 url('../assets/cover-tokusatsu-01.webp') center / cover no-repeat;
+}
+
+.hero-art::before {
     content: '';
     position: absolute;
     top: 0;
@@ -111,6 +120,21 @@ body::before {
         linear-gradient(-45deg, transparent 60%, rgba(230,57,70,0.06) 60%, rgba(230,57,70,0.06) 62%, transparent 62%);
     animation: heroScan 6s ease-in-out infinite;
     pointer-events: none;
+    z-index: 2;
+}
+
+/* 只压暗底部，保证叠加文字可读，同时不遮住封面自带标题 */
+.hero-art::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+        linear-gradient(to top, rgba(8,20,12,0.95) 0%, rgba(8,20,12,0.72) 14%, rgba(8,20,12,0.28) 28%, rgba(8,20,12,0) 44%);
+    pointer-events: none;
+    z-index: 1;
 }
 
 @keyframes heroScan {
@@ -137,6 +161,7 @@ body::before {
         radial-gradient(1px 1px at 60% 80%, rgba(240,165,0,0.3), transparent),
         radial-gradient(1px 1px at 90% 10%, rgba(255,255,255,0.4), transparent);
     animation: particlesFloat 4s ease-in-out infinite;
+    z-index: 2;
 }
 
 @keyframes particlesFloat {
@@ -144,11 +169,27 @@ body::before {
     50% { transform: translateY(-5px); }
 }
 
-.hero-content {
-    position: relative;
-    z-index: 2;
-    max-width: 800px;
-    margin: 0 auto;
+/* 封面自带标题，这里只叠加辅助信息 */
+.hero-overlay {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    z-index: 3;
+    width: min(620px, 100%);
+    padding: 0 24px 5% clamp(24px, 6.2vw, 108px);
+    text-align: left;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
 }
 
 .hero-badge {
@@ -218,7 +259,7 @@ body::before {
 .hero-decoration {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 8px;
     margin-bottom: 20px;
 }
@@ -355,6 +396,8 @@ body::before {
     display: flex;
     align-items: center;
     gap: 10px;
+    flex-basis: 100%;
+    order: 4;
 }
 
 /* Filter groups: tag-list + collection-filter side by side */
@@ -708,7 +751,30 @@ body::before {
     font-size: 22px;
     font-weight: 800;
     color: var(--text-primary);
-    padding-right: 40px;
+    padding-right: 104px;
+}
+
+.modal-edit {
+    position: absolute;
+    top: 20px;
+    right: 68px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(0,0,0,0.05);
+    font-size: 15px;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+}
+
+.modal-edit:hover {
+    background: var(--accent-gold);
+    transform: translateY(-1px);
 }
 
 .modal-close {
@@ -1009,6 +1075,76 @@ body::before {
    ADMIN PAGE STYLES
    ======================================== */
 
+/* 管理后台背景：无文字版机甲海报，分三层（海报层 + 纵向遮罩 + 跟随内容列的横向遮罩） */
+body.admin-page {
+    background: #0d1f14;
+}
+
+/* 海报层：覆盖 body::before 的浅色装饰层。放大并偏右定位，让骑士主体落在内容列右侧的空白带 */
+body.admin-page::before {
+    background: url('../assets/cover-mecha-bg.webp') 25% 15% / 160% auto no-repeat, #0d1f14;
+    filter: brightness(1.6) saturate(1.06);
+}
+
+/* 纵向遮罩：首尾沉下去，中段保留海报亮度 */
+body.admin-page::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom,
+        rgba(13,31,20,0.82) 0%,
+        rgba(13,31,20,0.50) 20%,
+        rgba(13,31,20,0.38) 55%,
+        rgba(13,31,20,0.75) 100%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* 横向遮罩：跟着内容列宽度走，两侧羽化，只压暗文字所在的中间一条 */
+.admin-page .admin-container::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(100vw, 1180px);
+    background: linear-gradient(to right,
+        rgba(13,31,20,0) 0%,
+        rgba(13,31,20,0.50) 13%,
+        rgba(13,31,20,0.50) 87%,
+        rgba(13,31,20,0) 100%);
+    pointer-events: none;
+    z-index: -1;
+}
+
+@media (max-width: 768px) {
+    body.admin-page::before {
+        background: url('../assets/cover-mecha-bg-1280.webp') 25% 15% / 160% auto no-repeat, #0d1f14;
+    }
+
+    .admin-page .admin-container::before {
+        background: rgba(13,31,20,0.45);
+    }
+
+    /* 窄屏下操作按钮等分一行，标签不拆字 */
+    .admin-header-actions {
+        width: 100%;
+    }
+
+    .admin-header-actions .btn,
+    .admin-header-actions .back-btn {
+        flex: 1 1 auto;
+        justify-content: center;
+        white-space: nowrap;
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+}
+
 .admin-container {
     max-width: 900px;
     margin: 0 auto;
@@ -1029,7 +1165,23 @@ body::before {
 .admin-header h1 {
     font-size: 28px;
     font-weight: 900;
-    color: var(--green-800);
+    color: #fff;
+    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.65);
+    letter-spacing: 1px;
+}
+
+.admin-subtitle {
+    color: var(--green-200);
+    font-size: 14px;
+    margin-top: 4px;
+    max-width: 560px;
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.7);
+}
+
+.admin-header-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
 /* Admin Tabs */
@@ -1385,6 +1537,74 @@ body::before {
     gap: 8px;
 }
 
+/* Admin problem list grouped by tags */
+.admin-tag-group {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    margin-bottom: 12px;
+    overflow: hidden;
+    background: var(--bg-card);
+}
+
+.admin-tag-group-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 20px;
+    background: linear-gradient(135deg, var(--green-50), #f8fdf8);
+    cursor: pointer;
+    user-select: none;
+    transition: background var(--transition-fast);
+    border-bottom: 1px solid transparent;
+}
+
+.admin-tag-group-header:hover {
+    background: linear-gradient(135deg, #dcfce7, #f0fdf4);
+}
+
+.admin-tag-group-header.collapsed {
+    border-bottom: none;
+}
+
+.admin-tag-group-icon {
+    font-size: 10px;
+    color: var(--green-600);
+    transition: transform var(--transition-fast);
+    width: 16px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.admin-tag-group-header.collapsed .admin-tag-group-icon {
+    transform: rotate(-90deg);
+}
+
+.admin-tag-group-name {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--green-800);
+    flex: 1;
+}
+
+.admin-tag-group-count {
+    font-size: 12px;
+    color: var(--text-muted);
+    background: var(--green-100);
+    padding: 3px 10px;
+    border-radius: 50px;
+    font-weight: 500;
+}
+
+.admin-tag-group-body .admin-problem-item {
+    border-bottom: 1px solid var(--border-color);
+    margin: 0;
+    border-radius: 0;
+}
+
+.admin-tag-group-body .admin-problem-item:last-child {
+    border-bottom: none;
+}
+
 /* Toast */
 .toast {
     position: fixed;
@@ -1422,6 +1642,33 @@ body::before {
    RESPONSIVE
    ======================================== */
 
+/* 窗口不够宽时，封面自带标题已经占住画面，辅助文字改放到封面下方 */
+@media (max-width: 1100px) {
+    .hero-header {
+        background: linear-gradient(180deg, #0d1f14 0%, #14532d 100%);
+    }
+
+    .hero-art {
+        min-height: 0;
+        max-height: none;
+    }
+
+    .hero-art::after {
+        background: linear-gradient(to top, rgba(8,20,12,0.5) 0%, rgba(8,20,12,0) 38%);
+    }
+
+    .hero-overlay {
+        position: static;
+        width: 100%;
+        padding: 22px clamp(20px, 5vw, 48px) 26px;
+        text-align: center;
+    }
+
+    .hero-decoration {
+        justify-content: center;
+    }
+}
+
 @media (max-width: 768px) {
     .nav-inner {
         padding: 10px 16px;
@@ -1429,7 +1676,6 @@ body::before {
     }
 
     .filter-groups {
-        order: 3;
         width: 100%;
         flex-direction: column;
     }
@@ -1463,8 +1709,8 @@ body::before {
         grid-template-columns: 1fr;
     }
 
-    .hero-header {
-        padding: 40px 16px 36px;
+    .hero-art {
+        background-image: url('../assets/cover-tokusatsu-01-1280.webp');
     }
 
     .admin-form {
@@ -1827,6 +2073,44 @@ body::before {
     color: var(--text-muted);
     font-size: 11px;
     margin-top: 16px;
+}
+
+/* 管理后台密码门：让机甲海报透出来一点，卡片加描边避免发飘 */
+.admin-page .auth-overlay {
+    background: rgba(8, 20, 12, 0.58);
+    backdrop-filter: blur(10px);
+}
+
+.admin-page .auth-card {
+    border: 1px solid rgba(134, 239, 172, 0.35);
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55), 0 0 32px rgba(34, 197, 94, 0.12);
+}
+
+/* 题解页编辑入口的密码框 */
+.auth-problem-title {
+    color: var(--green-700);
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 18px;
+    overflow-wrap: anywhere;
+}
+
+.auth-card .auth-cancel {
+    margin-top: 8px;
+    padding: 9px;
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.auth-card .auth-cancel:hover {
+    background: var(--green-50);
+    border-color: var(--green-200);
+    color: var(--text-secondary);
+    transform: none;
+    box-shadow: none;
 }
 
 /* ========================================

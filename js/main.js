@@ -30,6 +30,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderProblems();
     updateStats();
     setupSearch();
+    setupEditAuthPrompt();
 });
 
 // ==================== 标签筛选 ====================
@@ -284,7 +285,13 @@ function closeModal() {
 }
 
 function handleModalEsc(e) {
-    if (e.key === 'Escape') closeModal();
+    if (e.key !== 'Escape') return;
+    // 密码框打开时，ESC 只关密码框，不关题解弹窗
+    if (isEditAuthOpen()) {
+        closeEditAuth();
+        return;
+    }
+    closeModal();
 }
 
 // 点击遮罩关闭
@@ -302,6 +309,61 @@ function switchVersion(version) {
     document.querySelector(`.version-tab[data-version="${version}"]`).classList.add('active');
 
     updateSolutionContent();
+}
+
+// ==================== 题解页 → 本题编辑界面 ====================
+
+function setupEditAuthPrompt() {
+    const overlay = document.getElementById('editAuthOverlay');
+    if (!overlay) return;
+
+    document.getElementById('editAuthInput').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') submitEditPassword();
+    });
+
+    // 点击卡片外空白处关闭
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) closeEditAuth();
+    });
+}
+
+function isEditAuthOpen() {
+    const overlay = document.getElementById('editAuthOverlay');
+    return !!overlay && overlay.style.display !== 'none';
+}
+
+function openEditAuth() {
+    if (!currentProblem) return;
+
+    document.getElementById('editAuthProblem').textContent = currentProblem.title;
+    document.getElementById('editAuthError').style.display = 'none';
+    document.getElementById('editAuthInput').value = '';
+    document.getElementById('editAuthOverlay').style.display = 'flex';
+    document.getElementById('editAuthInput').focus();
+}
+
+function closeEditAuth() {
+    document.getElementById('editAuthOverlay').style.display = 'none';
+    document.getElementById('editAuthInput').value = '';
+}
+
+async function submitEditPassword() {
+    if (!currentProblem) { closeEditAuth(); return; }
+
+    const inputEl = document.getElementById('editAuthInput');
+    const errorEl = document.getElementById('editAuthError');
+    if (!inputEl.value) return;
+
+    if (await verifyAdminPassword(inputEl.value)) {
+        markAuthenticated(); // 后台识别本次会话，跳转后不再二次索要密码
+        location.href = 'admin.html?edit=' + encodeURIComponent(currentProblem.id);
+        return;
+    }
+
+    errorEl.textContent = '❌ 密码错误';
+    inputEl.value = '';
+    inputEl.focus();
+    shakeAuthError(errorEl);
 }
 
 function updateSolutionContent() {

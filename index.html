@@ -9,18 +9,21 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" as="image" href="assets/cover-tokusatsu-01.webp" fetchpriority="high">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <!-- 特摄风格顶部英雄区 -->
     <header class="hero-header">
-        <div class="hero-bg-particles"></div>
-        <div class="hero-content">
+        <div class="hero-art">
+            <div class="hero-bg-particles"></div>
+        </div>
+        <div class="hero-overlay">
             <div class="hero-badge">
                 <span class="badge-icon">⚡</span>
                 <span class="badge-text">XMUOJ 2026</span>
             </div>
-            <h1 class="hero-title">
+            <h1 class="hero-title sr-only">
                 <span class="title-line-1">程序设计实践</span>
                 <span class="title-line-2">算法题解库</span>
             </h1>
@@ -103,7 +106,9 @@
             <div class="modal-header">
                 <div class="modal-tag" id="modalTag"></div>
                 <h2 class="modal-title" id="modalTitle"></h2>
-                <button class="modal-close" onclick="closeModal()">✕</button>
+                <button class="modal-edit" id="modalEditBtn" onclick="openEditAuth()"
+                        title="编辑本题（需管理密码）" aria-label="编辑本题">✏️</button>
+                <button class="modal-close" onclick="closeModal()" title="关闭">✕</button>
             </div>
             <div class="modal-body">
                 <!-- 代码版本切换 -->
@@ -137,6 +142,19 @@
         </div>
     </div>
 
+    <!-- 题解页编辑入口：密码校验（与管理后台同一密码） -->
+    <div class="auth-overlay" id="editAuthOverlay" style="display:none;">
+        <div class="auth-card">
+            <div class="auth-icon">🔐</div>
+            <h2>编辑本题</h2>
+            <p class="auth-problem-title" id="editAuthProblem"></p>
+            <input type="password" id="editAuthInput" placeholder="输入管理密码" autocomplete="off">
+            <div class="auth-error" id="editAuthError"></div>
+            <button id="editAuthSubmit" onclick="submitEditPassword()">🔓 验证并编辑</button>
+            <button class="auth-cancel" onclick="closeEditAuth()">取消</button>
+        </div>
+    </div>
+
     <!-- 页脚 -->
     <footer class="site-footer">
         <div class="footer-content">
@@ -151,6 +169,7 @@
 
     <script src="js/data.js"></script>
     <script src="js/defaultProblems.js"></script>
+    <script src="js/auth.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
